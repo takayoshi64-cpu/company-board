@@ -3,16 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <title>情報発信掲示板システム</title>
+
+  <!-- Firebase（CDN / 互換レイヤー版） -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
   <style>
-    /* ===== テーマ色（ここだけ変えれば雰囲気が変わる） ===== */
+    /* ===== テーマ色 ===== */
     :root {
-      --bg-color: #f3f4f6;         /* ページの背景色 */
-      --panel-bg: #ffffff;         /* パネルの背景 */
-      --accent: #2563eb;           /* メインの青 */
+      --bg-color: #f3f4f6;         /* ページ背景 */
+      --panel-bg: #ffffff;         /* パネル背景 */
+      --accent: #2563eb;           /* メイン青 */
       --accent-soft: #dbeafe;      /* 薄い青 */
       --border: #d1d5db;           /* 枠線 */
-      --text-main: #111827;        /* 文字色（メイン） */
-      --text-sub: #6b7280;         /* 文字色（サブ） */
+      --text-main: #111827;        /* メイン文字色 */
+      --text-sub: #6b7280;         /* サブ文字色 */
     }
 
     * {
@@ -47,6 +52,32 @@
       margin: 4px 0 0;
       font-size: 12px;
       color: var(--text-sub);
+    }
+
+    /* ===== タブ ===== */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 8px 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      border: none;
+      background: transparent;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      border-radius: 6px 6px 0 0;
+      color: var(--text-sub);
+    }
+
+    .tab.active {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-bottom-color: var(--bg-color);
     }
 
     /* ===== パネル共通 ===== */
@@ -153,11 +184,14 @@
     .list-container {
       max-height: 480px;
       overflow-y: auto;
+      background-color: #f9fafb;
+      border-radius: 8px;
+      padding: 8px;
     }
 
     .item {
       border-bottom: 1px solid #e5e7eb;
-      padding: 8px 0;
+      padding: 8px 4px;
     }
 
     .item:last-child {
@@ -261,8 +295,17 @@
   <div class="page">
     <header>
       <h1>情報発信掲示板システム</h1>
-      <p>管理部・製造部などの社内連絡をまとめて表示します（GitHub Pages版）</p>
+      <p>管理部・製造部・会社ニュース・安全掲示板をタブで切替（全PCで共有）</p>
     </header>
+
+    <!-- タブ -->
+    <nav class="tabs">
+      <button class="tab active" data-board="all">全体情報</button>
+      <button class="tab" data-board="management">管理部からのお知らせ</button>
+      <button class="tab" data-board="factory">製造部からのお知らせ</button>
+      <button class="tab" data-board="news">会社ニュース</button>
+      <button class="tab" data-board="safety">安全掲示板</button>
+    </nav>
 
     <!-- 入力パネル -->
     <section class="panel">
@@ -278,7 +321,7 @@
       </div>
 
       <div class="form-row">
-        <label for="deptInput">部署</label>
+        <label for="deptInput">掲示の区分</label>
         <select id="deptInput">
           <option value="management">管理部からのお知らせ</option>
           <option value="factory">製造部からのお知らせ</option>
@@ -310,47 +353,57 @@
 
       <div class="button-row">
         <button id="addButton">投稿する</button>
-        <button id="clearButton" class="danger">
-          このブラウザの掲示をすべて削除
-        </button>
       </div>
+      <p class="empty" style="margin-top:4px;">
+        ※ 投稿すると Firebase に保存され、全てのPCから同じ掲示が見られます。
+      </p>
     </section>
 
     <!-- 一覧パネル -->
     <section class="panel">
-      <h2>掲示一覧（新しい順）</h2>
+      <h2>掲示一覧（タブで絞り込み）</h2>
       <div id="listContainer" class="list-container">
         <!-- JSで埋まる -->
       </div>
     </section>
 
     <footer>
-      ※ 掲示内容は各PCのブラウザ（localStorage）に保存されます。<br />
-      ※ 同じURLでも、中身はPCごとに独立、投稿内容は共有されません（共有版にしたい場合は次の段階で作れます）。
+      ※ 投稿内容は Google Firebase Firestore に保存されています。<br />
+      ※ 削除は誰でも可能なサンプル仕様です（あとで管理部限定にもできます）。
     </footer>
   </div>
 
   <script>
-    // ===== 設定 =====
-    const STORAGE_KEY = "public_display_board_v1";
+    /***** Firebase 初期化（あなたのプロジェクト設定を使用） *****/
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtY0kWxalO0B88AwpQU6bF8B4xxeFh5qc",
+      authDomain: "company-board-e9c21.firebaseapp.com",
+      projectId: "company-board-e9c21",
+      storageBucket: "company-board-e9c21.firebasestorage.app",
+      messagingSenderId: "87763888182",
+      appId: "1:87763888182:web:9238e51b45c7b94b6e5097",
+      measurementId: "G-NTRC5HCN0H"
+    };
 
-    // DOM参照
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const postsCol = db.collection("posts");
+
+    /***** DOM 取得 *****/
     const titleInput = document.getElementById("titleInput");
     const deptInput = document.getElementById("deptInput");
     const bodyInput = document.getElementById("bodyInput");
     const importantInput = document.getElementById("importantInput");
     const authorInput = document.getElementById("authorInput");
     const addButton = document.getElementById("addButton");
-    const clearButton = document.getElementById("clearButton");
     const listContainer = document.getElementById("listContainer");
+    const tabs = document.querySelectorAll(".tab");
 
-    // データ
-    let posts = loadPosts();
-    renderList();
+    let posts = [];
+    let activeBoard = "all";
 
-    // ===== イベント =====
+    /***** イベント登録 *****/
     addButton.addEventListener("click", handleAdd);
-    clearButton.addEventListener("click", handleClearAll);
 
     // Ctrl+Enter(or Cmd+Enter) で投稿
     document.addEventListener("keydown", (e) => {
@@ -359,12 +412,38 @@
       }
     });
 
-    // ===== 関数群 =====
-    function handleAdd() {
+    // タブ切り替え
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        activeBoard = tab.getAttribute("data-board");
+        renderList();
+      });
+    });
+
+    /***** Firestore リアルタイム購読 *****/
+    postsCol.orderBy("createdAt", "desc").onSnapshot(
+      (snapshot) => {
+        posts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        renderList();
+      },
+      (err) => {
+        console.error(err);
+        listContainer.innerHTML =
+          '<p class="empty">データの読み込みに失敗しました。Firebase設定を確認してください。</p>';
+      }
+    );
+
+    /***** 投稿処理 *****/
+    async function handleAdd() {
       const title = titleInput.value.trim();
       const body = bodyInput.value.trim();
       const dept = deptInput.value;
-      const important = importantInput.value;
+      const important = importantInput.value === "important";
       const author = authorInput.value.trim();
 
       if (!body) {
@@ -372,66 +451,54 @@
         return;
       }
 
-      const now = new Date();
-      const post = {
-        id: Date.now(),
-        title: title || "（無題）",
-        body,
-        dept,
-        important: important === "important",
-        author,
-        createdAt: now.toISOString(),
-      };
-
-      posts.unshift(post);
-      savePosts(posts);
-      renderList();
-      clearForm();
-    }
-
-    function handleClearAll() {
-      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？")) {
-        return;
-      }
-      posts = [];
-      savePosts(posts);
-      renderList();
-    }
-
-    function handleDelete(id) {
-      if (!confirm("この掲示を削除しますか？")) return;
-      posts = posts.filter((p) => p.id !== id);
-      savePosts(posts);
-      renderList();
-    }
-
-    function loadPosts() {
       try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        return JSON.parse(raw);
+        await postsCol.add({
+          title: title || "（無題）",
+          body,
+          dept,
+          important,
+          author,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+
+        clearForm();
       } catch (e) {
         console.error(e);
-        return [];
+        alert("投稿に失敗しました。Firebase の設定・ルールをご確認ください。");
       }
     }
 
-    function savePosts(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    async function handleDelete(id) {
+      if (!confirm("この掲示を削除しますか？")) return;
+      try {
+        await postsCol.doc(id).delete();
+      } catch (e) {
+        console.error(e);
+        alert("削除に失敗しました。");
+      }
     }
 
+    /***** 表示レンダリング *****/
     function renderList() {
       listContainer.innerHTML = "";
 
-      if (!posts.length) {
+      // 絞り込み
+      let filtered = [];
+      if (activeBoard === "all") {
+        filtered = posts;
+      } else {
+        filtered = posts.filter((p) => p.dept === activeBoard);
+      }
+
+      if (!filtered.length) {
         const p = document.createElement("p");
         p.className = "empty";
-        p.textContent = "まだ掲示はありません。フォームから投稿してください。";
+        p.textContent = "現在、このタブに表示できる情報はありません。";
         listContainer.appendChild(p);
         return;
       }
 
-      posts.forEach((p) => {
+      filtered.forEach((p) => {
         const item = document.createElement("article");
         item.className = "item";
 
@@ -456,13 +523,14 @@
 
         const titleSpan = document.createElement("span");
         titleSpan.className = "item-title";
-        titleSpan.textContent = p.title;
+        titleSpan.textContent = p.title || "（無題）";
         left.appendChild(titleSpan);
 
         const meta = document.createElement("div");
         meta.className = "item-meta";
+        const dateStr = formatDateTime(p.createdAt);
         meta.innerHTML =
-          formatDateTime(p.createdAt) +
+          (dateStr ? dateStr : "") +
           (p.author ? "<br>" + escapeHtml(p.author) : "");
 
         header.appendChild(left);
@@ -470,7 +538,7 @@
 
         const bodyDiv = document.createElement("div");
         bodyDiv.className = "item-body";
-        bodyDiv.textContent = p.body;
+        bodyDiv.textContent = p.body || "";
 
         const actions = document.createElement("div");
         actions.className = "item-actions";
@@ -488,8 +556,8 @@
       });
     }
 
+    /***** ユーティリティ *****/
     function clearForm() {
-      // タイトルと部署は残すと連投しやすいので本文だけリセット
       bodyInput.value = "";
       importantInput.value = "normal";
       bodyInput.focus();
@@ -525,8 +593,14 @@
       }
     }
 
-    function formatDateTime(iso) {
-      const d = new Date(iso);
+    function formatDateTime(ts) {
+      if (!ts) return "";
+      let d;
+      if (ts.toDate) {
+        d = ts.toDate();
+      } else {
+        d = new Date(ts);
+      }
       if (isNaN(d.getTime())) return "";
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
