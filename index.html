@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>情報発信掲示板システム</title>
+  <style>
+    /* ===== テーマ色（ここだけ変えれば雰囲気が変わる） ===== */
+    :root {
+      --bg-color: #f3f4f6;         /* ページの背景色 */
+      --panel-bg: #ffffff;         /* パネルの背景 */
+      --accent: #2563eb;           /* メインの青 */
+      --accent-soft: #dbeafe;      /* 薄い青 */
+      --border: #d1d5db;           /* 枠線 */
+      --text-main: #111827;        /* 文字色（メイン） */
+      --text-sub: #6b7280;         /* 文字色（サブ） */
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 16px auto 32px;
+      padding: 16px;
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* ===== パネル共通 ===== */
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      margin-bottom: 12px;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    /* ===== 入力フォーム ===== */
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 8px;
+    }
+
+    .form-row label {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 2px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background-color: #f9fafb;
+      color: var(--text-main);
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+      background-color: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background-color: var(--accent);
+      color: #ffffff;
+      transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background-color: #ffffff;
+      color: var(--accent);
+    }
+
+    button.danger {
+      border-color: #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+
+    button.danger:hover {
+      background-color: #fecaca;
+    }
+
+    /* ===== 掲示一覧 ===== */
+    .list-container {
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .item {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 0;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .item-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: right;
+    }
+
+    .item-body {
+      margin-top: 4px;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    /* バッジ */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-right: 4px;
+    }
+
+    .badge-dept-management {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-dept-factory {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-dept-news {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-dept-safety {
+      background-color: #fef9c3;
+      color: #92400e;
+    }
+
+    .badge-important {
+      border: 1px solid #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+
+    .item-actions {
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .item-actions button {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .empty {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    footer {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 8px;
+        margin: 8px auto 16px;
+      }
+
+      header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>情報発信掲示板システム</h1>
+      <p>管理部・製造部などの社内連絡をまとめて表示します（GitHub Pages版）</p>
+    </header>
+
+    <!-- 入力パネル -->
+    <section class="panel">
+      <h2>新しいお知らせを投稿</h2>
+
+      <div class="form-row">
+        <label for="titleInput">タイトル</label>
+        <input
+          id="titleInput"
+          type="text"
+          placeholder="例：明日の朝礼について"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="deptInput">部署</label>
+        <select id="deptInput">
+          <option value="management">管理部からのお知らせ</option>
+          <option value="factory">製造部からのお知らせ</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="bodyInput">本文</label>
+        <textarea
+          id="bodyInput"
+          placeholder="掲示内容を入力してください"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="importantInput">重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="authorInput">投稿者（任意）</label>
+        <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
+      </div>
+
+      <div class="button-row">
+        <button id="addButton">投稿する</button>
+        <button id="clearButton" class="danger">
+          このブラウザの掲示をすべて削除
+        </button>
+      </div>
+    </section>
+
+    <!-- 一覧パネル -->
+    <section class="panel">
+      <h2>掲示一覧（新しい順）</h2>
+      <div id="listContainer" class="list-container">
+        <!-- JSで埋まる -->
+      </div>
+    </section>
+
+    <footer>
+      ※ 掲示内容は各PCのブラウザ（localStorage）に保存されます。<br />
+      ※ 同じURLでも、中身はPCごとに独立した掲示板です。
+    </footer>
+  </div>
+
+  <script>
+    // ===== 設定 =====
+    const STORAGE_KEY = "public_display_board_v1";
+
+    // DOM参照
+    const titleInput = document.getElementById("titleInput");
+    const deptInput = document.getElementById("deptInput");
+    const bodyInput = document.getElementById("bodyInput");
+    const importantInput = document.getElementById("importantInput");
+    const authorInput = document.getElementById("authorInput");
+    const addButton = document.getElementById("addButton");
+    const clearButton = document.getElementById("clearButton");
+    const listContainer = document.getElementById("listContainer");
+
+    // データ
+    let posts = loadPosts();
+    renderList();
+
+    // ===== イベント =====
+    addButton.addEventListener("click", handleAdd);
+    clearButton.addEventListener("click", handleClearAll);
+
+    // Ctrl+Enter(or Cmd+Enter) で投稿
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        handleAdd();
+      }
+    });
+
+    // ===== 関数群 =====
+    function handleAdd() {
+      const title = titleInput.value.trim();
+      const body = bodyInput.value.trim();
+      const dept = deptInput.value;
+      const important = importantInput.value;
+      const author = authorInput.value.trim();
+
+      if (!body) {
+        alert("本文を入力してください");
+        return;
+      }
+
+      const now = new Date();
+      const post = {
+        id: Date.now(),
+        title: title || "（無題）",
+        body,
+        dept,
+        important: important === "important",
+        author,
+        createdAt: now.toISOString(),
+      };
+
+      posts.unshift(post);
+      savePosts(posts);
+      renderList();
+      clearForm();
+    }
+
+    function handleClearAll() {
+      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？")) {
+        return;
+      }
+      posts = [];
+      savePosts(posts);
+      renderList();
+    }
+
+    function handleDelete(id) {
+      if (!confirm("この掲示を削除しますか？")) return;
+      posts = posts.filter((p) => p.id !== id);
+      savePosts(posts);
+      renderList();
+    }
+
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    function savePosts(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function renderList() {
+      listContainer.innerHTML = "";
+
+      if (!posts.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "まだ掲示はありません。フォームから投稿してください。";
+        listContainer.appendChild(p);
+        return;
+      }
+
+      posts.forEach((p) => {
+        const item = document.createElement("article");
+        item.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+
+        const left = document.createElement("div");
+
+        // 部署バッジ
+        const deptBadge = document.createElement("span");
+        deptBadge.className = "badge " + getDeptBadgeClass(p.dept);
+        deptBadge.textContent = getDeptLabel(p.dept);
+        left.appendChild(deptBadge);
+
+        // 重要バッジ
+        if (p.important) {
+          const impBadge = document.createElement("span");
+          impBadge.className = "badge badge-important";
+          impBadge.textContent = "重要";
+          left.appendChild(impBadge);
+        }
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "item-title";
+        titleSpan.textContent = p.title;
+        left.appendChild(titleSpan);
+
+        const meta = document.createElement("div");
+        meta.className = "item-meta";
+        meta.innerHTML =
+          formatDateTime(p.createdAt) +
+          (p.author ? "<br>" + escapeHtml(p.author) : "");
+
+        header.appendChild(left);
+        header.appendChild(meta);
+
+        const bodyDiv = document.createElement("div");
+        bodyDiv.className = "item-body";
+        bodyDiv.textContent = p.body;
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        const delBtn = document.createElement("button");
+        delBtn.className = "secondary danger";
+        delBtn.textContent = "削除";
+        delBtn.addEventListener("click", () => handleDelete(p.id));
+        actions.appendChild(delBtn);
+
+        item.appendChild(header);
+        item.appendChild(bodyDiv);
+        item.appendChild(actions);
+
+        listContainer.appendChild(item);
+      });
+    }
+
+    function clearForm() {
+      // タイトルと部署は残すと連投しやすいので本文だけリセット
+      bodyInput.value = "";
+      importantInput.value = "normal";
+      //authorInput.value = ""; // 投稿者もリセットしたいならコメントアウト外す
+      bodyInput.focus();
+    }
+
+    function getDeptLabel(dept) {
+      switch (dept) {
+        case "management":
+          return "管理部";
+        case "factory":
+          return "製造部";
+        case "news":
+          return "会社ニュース";
+        case "safety":
+          return "安全掲示板";
+        default:
+          return "その他";
+      }
+    }
+
+    function getDeptBadgeClass(dept) {
+      switch (dept) {
+        case "management":
+          return "badge-dept-management";
+        case "factory":
+          return "badge-dept-factory";
+        case "news":
+          return "badge-dept-news";
+        case "safety":
+          return "badge-dept-safety";
+        default:
+          return "";
+      }
+    }
+
+    function formatDateTime(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${y}/${m}/${day} ${hh}:${mm}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
