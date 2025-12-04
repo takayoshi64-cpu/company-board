@@ -287,4 +287,317 @@
   <div class="page">
     <header>
       <h1>情報発信掲示板システム</h1>
-      <p>管理部・製造部などの社内連絡をまと
+      <p>管理部・製造部などの社内連絡をまとめて表示します（このPC保存版）</p>
+    </header>
+
+    <!-- タブ（絞り込み） -->
+    <nav class="tabs">
+      <button class="tab active" data-filter="all">全体情報</button>
+      <button class="tab" data-filter="management">管理部</button>
+      <button class="tab" data-filter="factory">製造部</button>
+      <button class="tab" data-filter="news">会社ニュース</button>
+      <button class="tab" data-filter="safety">安全掲示板</button>
+    </nav>
+
+    <!-- 入力パネル -->
+    <section class="panel">
+      <h2>新しいお知らせを投稿</h2>
+
+      <div class="form-row">
+        <label for="titleInput">タイトル</label>
+        <input
+          id="titleInput"
+          type="text"
+          placeholder="例：明日の朝礼について"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="deptInput">部署</label>
+        <select id="deptInput">
+          <option value="management">管理部からのお知らせ</option>
+          <option value="factory">製造部からのお知らせ</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="bodyInput">本文</label>
+        <textarea
+          id="bodyInput"
+          placeholder="掲示内容を入力してください"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="importantInput">重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="authorInput">投稿者（任意）</label>
+        <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
+      </div>
+
+      <div class="button-row">
+        <button id="addButton">投稿する</button>
+        <button id="clearButton" class="danger">
+          このブラウザの掲示をすべて削除
+        </button>
+      </div>
+    </section>
+
+    <!-- 一覧パネル -->
+    <section class="panel">
+      <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
+      <div id="listContainer" class="list-container">
+        <!-- JSで埋まる -->
+      </div>
+    </section>
+
+    <footer>
+      ※ 掲示内容は各PCのブラウザ（localStorage）に保存されます。<br />
+      ※ 同じURLでも、中身はPCごとに独立します（PC間で共有したいときは Firebase 版にステップアップ）。
+    </footer>
+  </div>
+
+  <script>
+    // ===== 設定 =====
+    const STORAGE_KEY = "public_display_board_v1";
+
+    // DOM参照
+    const titleInput = document.getElementById("titleInput");
+    const deptInput = document.getElementById("deptInput");
+    const bodyInput = document.getElementById("bodyInput");
+    const importantInput = document.getElementById("importantInput");
+    const authorInput = document.getElementById("authorInput");
+    const addButton = document.getElementById("addButton");
+    const clearButton = document.getElementById("clearButton");
+    const listContainer = document.getElementById("listContainer");
+    const tabs = document.querySelectorAll(".tab");
+
+    // データ
+    let posts = loadPosts();
+    let activeFilter = "all"; // タブの状態
+    renderList();
+
+    // ===== イベント =====
+    addButton.addEventListener("click", handleAdd);
+    clearButton.addEventListener("click", handleClearAll);
+
+    // Ctrl+Enter(or Cmd+Enter) で投稿
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        handleAdd();
+      }
+    });
+
+    // タブクリックで絞り込み
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        activeFilter = tab.dataset.filter;
+        renderList();
+      });
+    });
+
+    // ===== 関数群 =====
+    function handleAdd() {
+      const title = titleInput.value.trim();
+      const body = bodyInput.value.trim();
+      const dept = deptInput.value;
+      const important = importantInput.value;
+      const author = authorInput.value.trim();
+
+      if (!body) {
+        alert("本文を入力してください");
+        return;
+      }
+
+      const now = new Date();
+      const post = {
+        id: Date.now(),
+        title: title || "（無題）",
+        body,
+        dept,
+        important: important === "important",
+        author,
+        createdAt: now.toISOString(),
+      };
+
+      posts.unshift(post);
+      savePosts(posts);
+      renderList();
+      clearForm();
+    }
+
+    function handleClearAll() {
+      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？")) {
+        return;
+      }
+      posts = [];
+      savePosts(posts);
+      renderList();
+    }
+
+    function handleDelete(id) {
+      if (!confirm("この掲示を削除しますか？")) return;
+      posts = posts.filter((p) => p.id !== id);
+      savePosts(posts);
+      renderList();
+    }
+
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    function savePosts(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function renderList() {
+      listContainer.innerHTML = "";
+
+      // フィルタリング
+      let target = posts;
+      if (activeFilter !== "all") {
+        target = posts.filter((p) => p.dept === activeFilter);
+      }
+
+      if (!target.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "このタブに該当する掲示はありません。";
+        listContainer.appendChild(p);
+        return;
+      }
+
+      target.forEach((p) => {
+        const item = document.createElement("article");
+        item.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+
+        const left = document.createElement("div");
+
+        // 部署バッジ
+        const deptBadge = document.createElement("span");
+        deptBadge.className = "badge " + getDeptBadgeClass(p.dept);
+        deptBadge.textContent = getDeptLabel(p.dept);
+        left.appendChild(deptBadge);
+
+        // 重要バッジ
+        if (p.important) {
+          const impBadge = document.createElement("span");
+          impBadge.className = "badge badge-important";
+          impBadge.textContent = "重要";
+          left.appendChild(impBadge);
+        }
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "item-title";
+        titleSpan.textContent = p.title;
+        left.appendChild(titleSpan);
+
+        const meta = document.createElement("div");
+        meta.className = "item-meta";
+        meta.innerHTML =
+          formatDateTime(p.createdAt) +
+          (p.author ? "<br>" + escapeHtml(p.author) : "");
+
+        header.appendChild(left);
+        header.appendChild(meta);
+
+        const bodyDiv = document.createElement("div");
+        bodyDiv.className = "item-body";
+        bodyDiv.textContent = p.body;
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        const delBtn = document.createElement("button");
+        delBtn.className = "secondary danger";
+        delBtn.textContent = "削除";
+        delBtn.addEventListener("click", () => handleDelete(p.id));
+        actions.appendChild(delBtn);
+
+        item.appendChild(header);
+        item.appendChild(bodyDiv);
+        item.appendChild(actions);
+
+        listContainer.appendChild(item);
+      });
+    }
+
+    function clearForm() {
+      // タイトルと部署は残すと連投しやすいので本文だけリセット
+      bodyInput.value = "";
+      importantInput.value = "normal";
+      bodyInput.focus();
+    }
+
+    function getDeptLabel(dept) {
+      switch (dept) {
+        case "management":
+          return "管理部";
+        case "factory":
+          return "製造部";
+        case "news":
+          return "会社ニュース";
+        case "safety":
+          return "安全掲示板";
+        default:
+          return "その他";
+      }
+    }
+
+    function getDeptBadgeClass(dept) {
+      switch (dept) {
+        case "management":
+          return "badge-dept-management";
+        case "factory":
+          return "badge-dept-factory";
+        case "news":
+          return "badge-dept-news";
+        case "safety":
+          return "badge-dept-safety";
+        default:
+          return "";
+      }
+    }
+
+    function formatDateTime(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${y}/${m}/${day} ${hh}:${mm}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
