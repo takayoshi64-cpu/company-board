@@ -326,7 +326,7 @@
 
     <footer>
       ※ 掲示内容は各PCのブラウザ（localStorage）に保存されます。<br />
-      ※ 同じURLでも、中身はPCごとに独立した掲示板です。
+      ※ 同じURLでも、中身はPCごとに独立、投稿内容は共有されません（共有版にしたい場合は次の段階で作れます）。
     </footer>
   </div>
 
@@ -492,7 +492,6 @@
       // タイトルと部署は残すと連投しやすいので本文だけリセット
       bodyInput.value = "";
       importantInput.value = "normal";
-      //authorInput.value = ""; // 投稿者もリセットしたいならコメントアウト外す
       bodyInput.focus();
     }
 
@@ -527,7 +526,6 @@
     }
 
     function formatDateTime(iso) {
-      if (!iso) return "";
       const d = new Date(iso);
       if (isNaN(d.getTime())) return "";
       const y = d.getFullYear();
