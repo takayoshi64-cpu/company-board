@@ -4,15 +4,17 @@
   <meta charset="UTF-8" />
   <title>情報発信掲示板システム</title>
   <style>
-    /* ===== テーマ色（ここだけ変えれば雰囲気が変わる） ===== */
+    /* ===== テーマ色（安全掲示板ぽい黄色） ===== */
     :root {
-      --bg-color: #f3f4f6;         /* ページの背景色 */
-      --panel-bg: #ffffff;         /* パネルの背景 */
-      --accent: #2563eb;           /* メインの青 */
-      --accent-soft: #dbeafe;      /* 薄い青 */
-      --border: #d1d5db;           /* 枠線 */
+      --bg-color: #facc15;         /* ページの背景色（黄） */
+      --panel-bg: #facc15;         /* パネル周りも黄に合わせる */
+      --card-bg: #ffffff;          /* 箱（カード）の背景 */
+      --accent: #111827;           /* 見出しの黒 */
+      --accent-soft: #1f2937;      /* 濃いグレー */
+      --border: #111827;           /* 枠線（黒っぽく） */
       --text-main: #111827;        /* 文字色（メイン） */
-      --text-sub: #6b7280;         /* 文字色（サブ） */
+      --text-sub: #4b5563;         /* 文字色（サブ） */
+      --badge-green: #16a34a;
     }
 
     * {
@@ -28,7 +30,7 @@
     }
 
     .page {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 16px auto 32px;
       padding: 16px;
     }
@@ -40,7 +42,7 @@
 
     header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 28px;
     }
 
     header p {
@@ -54,42 +56,43 @@
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin: 8px 0 12px;
-      border-bottom: 1px solid var(--border);
+      margin: 12px 0 12px;
     }
 
     .tab {
-      border: none;
-      background: transparent;
+      border: 1px solid var(--accent);
+      background: #fef9c3;
       padding: 6px 10px;
       cursor: pointer;
       font-size: 13px;
-      border-radius: 6px 6px 0 0;
-      color: var(--text-sub);
+      border-radius: 999px;
+      color: var(--accent-soft);
     }
 
     .tab.active {
-      background-color: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--border);
-      border-bottom-color: var(--bg-color);
+      background-color: var(--accent);
+      color: #ffffff;
     }
 
-    /* ===== パネル共通 ===== */
+    /* ===== パネル共通（フォームと一覧の枠） ===== */
     .panel {
       background-color: var(--panel-bg);
-      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px 14px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
       margin-bottom: 12px;
     }
 
     .panel h2 {
-      margin: 0 0 8px;
+      margin: 0;
       font-size: 16px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 4px;
+      padding: 8px 12px;
+      background-color: var(--accent);
+      color: #ffffff;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .panel-body {
+      padding: 10px 12px 12px;
+      border-radius: 0 0 8px 8px;
     }
 
     /* ===== 入力フォーム ===== */
@@ -113,7 +116,7 @@
       padding: 4px 6px;
       border-radius: 4px;
       border: 1px solid var(--border);
-      background-color: #f9fafb;
+      background-color: #fefce8;
       color: var(--text-main);
     }
 
@@ -122,7 +125,7 @@
     select:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px var(--accent-soft);
+      box-shadow: 0 0 0 1px #fef9c3;
       background-color: #ffffff;
     }
 
@@ -151,8 +154,8 @@
     }
 
     button:hover {
-      background-color: #1d4ed8;
-      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+      background-color: #000000;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.45);
     }
 
     button:active {
@@ -175,26 +178,31 @@
       background-color: #fecaca;
     }
 
-    /* ===== 掲示一覧 ===== */
+    /* ===== 掲示一覧を「箱」レイアウトにする ===== */
     .list-container {
-      max-height: 480px;
-      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
     }
 
     .item {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 8px 0;
-    }
-
-    .item:last-child {
-      border-bottom: none;
+      background-color: var(--card-bg);
+      border-radius: 6px;
+      border: 2px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 120px;
     }
 
     .item-header {
       display: flex;
       justify-content: space-between;
       gap: 8px;
-      align-items: baseline;
+      align-items: center;
+      padding: 6px 10px;
+      background-color: #111827;
+      color: #f9fafb;
     }
 
     .item-title {
@@ -204,54 +212,22 @@
 
     .item-meta {
       font-size: 11px;
-      color: var(--text-sub);
+      color: #e5e7eb;
       text-align: right;
     }
 
     .item-body {
-      margin-top: 4px;
+      flex: 1;
+      padding: 8px 10px 6px;
       font-size: 13px;
       white-space: pre-wrap;
-    }
-
-    /* バッジ */
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: 999px;
-      margin-right: 4px;
-    }
-
-    .badge-dept-management {
-      background-color: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .badge-dept-factory {
-      background-color: #dcfce7;
-      color: #15803d;
-    }
-
-    .badge-dept-news {
-      background-color: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .badge-dept-safety {
-      background-color: #fef9c3;
-      color: #92400e;
-    }
-
-    .badge-important {
-      border: 1px solid #b91c1c;
-      color: #b91c1c;
-      background-color: #fee2e2;
+      background-color: #ffffff;
     }
 
     .item-actions {
-      margin-top: 4px;
+      padding: 4px 10px 8px;
       text-align: right;
+      background-color: #ffffff;
     }
 
     .item-actions button {
@@ -263,6 +239,43 @@
     .empty {
       font-size: 13px;
       color: var(--text-sub);
+    }
+
+    /* バッジ */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-right: 4px;
+      background-color: #e5e7eb;
+      color: #111827;
+    }
+
+    .badge-dept-management {
+      background-color: #bfdbfe;
+      color: #1d4ed8;
+    }
+
+    .badge-dept-factory {
+      background-color: #bbf7d0;
+      color: #15803d;
+    }
+
+    .badge-dept-news {
+      background-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    .badge-dept-safety {
+      background-color: #fef08a;
+      color: #92400e;
+    }
+
+    .badge-important {
+      border: 1px solid #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
     }
 
     footer {
@@ -278,7 +291,7 @@
       }
 
       header h1 {
-        font-size: 20px;
+        font-size: 22px;
       }
     }
   </style>
@@ -287,7 +300,7 @@
   <div class="page">
     <header>
       <h1>情報発信掲示板システム</h1>
-      <p>管理部・製造部などの社内連絡をまとめて表示します（このPC保存版）</p>
+      <p>管理部・製造部・会社ニュース・安全掲示板を「箱」レイアウトで表示（このPC保存版）</p>
     </header>
 
     <!-- タブ（絞り込み） -->
@@ -302,66 +315,69 @@
     <!-- 入力パネル -->
     <section class="panel">
       <h2>新しいお知らせを投稿</h2>
+      <div class="panel-body">
+        <div class="form-row">
+          <label for="titleInput">タイトル</label>
+          <input
+            id="titleInput"
+            type="text"
+            placeholder="例：安全パトロール日程のお知らせ"
+          />
+        </div>
 
-      <div class="form-row">
-        <label for="titleInput">タイトル</label>
-        <input
-          id="titleInput"
-          type="text"
-          placeholder="例：明日の朝礼について"
-        />
-      </div>
+        <div class="form-row">
+          <label for="deptInput">掲示区分</label>
+          <select id="deptInput">
+            <option value="management">管理部からのお知らせ</option>
+            <option value="factory">製造部からのお知らせ</option>
+            <option value="news">会社ニュース</option>
+            <option value="safety">安全掲示板</option>
+          </select>
+        </div>
 
-      <div class="form-row">
-        <label for="deptInput">部署</label>
-        <select id="deptInput">
-          <option value="management">管理部からのお知らせ</option>
-          <option value="factory">製造部からのお知らせ</option>
-          <option value="news">会社ニュース</option>
-          <option value="safety">安全掲示板</option>
-        </select>
-      </div>
+        <div class="form-row">
+          <label for="bodyInput">本文</label>
+          <textarea
+            id="bodyInput"
+            placeholder="掲示内容を入力してください"
+          ></textarea>
+        </div>
 
-      <div class="form-row">
-        <label for="bodyInput">本文</label>
-        <textarea
-          id="bodyInput"
-          placeholder="掲示内容を入力してください"
-        ></textarea>
-      </div>
+        <div class="form-row">
+          <label for="importantInput">重要度</label>
+          <select id="importantInput">
+            <option value="normal">通常</option>
+            <option value="important">重要</option>
+          </select>
+        </div>
 
-      <div class="form-row">
-        <label for="importantInput">重要度</label>
-        <select id="importantInput">
-          <option value="normal">通常</option>
-          <option value="important">重要</option>
-        </select>
-      </div>
+        <div class="form-row">
+          <label for="authorInput">投稿者（任意）</label>
+          <input id="authorInput" type="text" placeholder="例：安全衛生委員会" />
+        </div>
 
-      <div class="form-row">
-        <label for="authorInput">投稿者（任意）</label>
-        <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
-      </div>
-
-      <div class="button-row">
-        <button id="addButton">投稿する</button>
-        <button id="clearButton" class="danger">
-          このブラウザの掲示をすべて削除
-        </button>
+        <div class="button-row">
+          <button id="addButton">投稿する</button>
+          <button id="clearButton" class="danger">
+            このブラウザの掲示をすべて削除
+          </button>
+        </div>
       </div>
     </section>
 
     <!-- 一覧パネル -->
     <section class="panel">
       <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
-      <div id="listContainer" class="list-container">
-        <!-- JSで埋まる -->
+      <div class="panel-body">
+        <div id="listContainer" class="list-container">
+          <!-- JSで埋まる -->
+        </div>
       </div>
     </section>
 
     <footer>
       ※ 掲示内容は各PCのブラウザ（localStorage）に保存されます。<br />
-      ※ 同じURLでも、中身はPCごとに独立します（PC間で共有したいときは Firebase 版にステップアップ）。
+      ※ 同じURLでも、中身はPCごとに独立します（PC間共有版は別ステップで作成）。
     </footer>
   </div>
 
@@ -593,7 +609,7 @@
       if (!str) return "";
       return String(str)
         .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt")
+        .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
