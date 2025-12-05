@@ -175,7 +175,7 @@
       background-color: #fecaca;
     }
 
-    /* ===== 通常の掲示一覧（縦並び） ===== */
+    /* ===== 通常タブの掲示一覧（縦） ===== */
     .list-container {
       max-height: 480px;
       overflow-y: auto;
@@ -295,21 +295,15 @@
       max-width: 1100px;
     }
 
-    body.safety-mode header h1 {
-      color: #111827;
-    }
-
+    body.safety-mode header h1,
     body.safety-mode header p {
       color: #111827;
     }
 
-    body.safety-mode .panel {
+    body.safety-mode .panel.list-panel {
       background-color: #facc15;
       border: none;
       box-shadow: none;
-    }
-
-    body.safety-mode .panel.list-panel {
       padding: 0;
     }
 
@@ -323,62 +317,58 @@
     }
 
     body.safety-mode .panel.list-panel .list-container {
+      max-height: none;
       padding: 10px 12px 12px;
-    }
-
-    /* 一覧を「箱」のグリッドレイアウトに変更 */
-    body.safety-mode .list-container {
-      max-height: none;          /* スクロール無し（全体を貼り出すイメージ） */
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 12px;
     }
 
-    body.safety-mode .item {
-      border-bottom: none;
+    body.safety-mode .safety-card {
       background-color: #ffffff;
       border-radius: 6px;
       border: 2px solid #111827;
-      padding: 0;
       display: flex;
       flex-direction: column;
       min-height: 120px;
     }
 
-    body.safety-mode .item-header {
+    body.safety-mode .safety-card-header {
+      padding: 6px 10px;
       background-color: #111827;
       color: #f9fafb;
-      padding: 6px 10px;
-      border-bottom: 1px solid #111827;
-      align-items: center;
-    }
-
-    body.safety-mode .item-title {
       font-size: 14px;
       font-weight: 700;
+      border-bottom: 1px solid #111827;
     }
 
-    body.safety-mode .item-meta {
-      color: #e5e7eb;
-    }
-
-    body.safety-mode .item-body {
+    body.safety-mode .safety-card-body {
       flex: 1;
-      margin: 0;
       padding: 8px 10px 6px;
+      background-color: #ffffff;
+    }
+
+    body.safety-mode .safety-card-body textarea {
+      width: 100%;
+      min-height: 80px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      font-family: inherit;
       font-size: 13px;
-      background-color: #ffffff;
+      padding: 4px 6px;
+      resize: vertical;
     }
 
-    body.safety-mode .item-actions {
-      margin-top: 0;
+    body.safety-mode .safety-card-footer {
       padding: 4px 10px 8px;
+      text-align: right;
       background-color: #ffffff;
     }
 
-    body.safety-mode .item-actions button {
+    body.safety-mode .safety-card-footer button {
       font-size: 11px;
       padding: 3px 8px;
+      border-radius: 999px;
     }
   </style>
 </head>
@@ -417,7 +407,7 @@
           <option value="management">管理部からのお知らせ</option>
           <option value="factory">製造部からのお知らせ</option>
           <option value="news">会社ニュース</option>
-          <option value="safety">安全掲示板</option>
+          <option value="safety">安全掲示板（※安全タブの固定欄とは別）</option>
         </select>
       </div>
 
@@ -460,13 +450,24 @@
 
     <footer>
       ※ 掲示内容は各PCのブラウザ（localStorage）に保存されます。<br />
-      ※ 同じURLでも、中身はPCごとに独立します（PC間共有版は別ステップで作成）。
+      ※ 安全タブの黄色い箱も、このPCごとに保存されます。
     </footer>
   </div>
 
   <script>
     // ===== 設定 =====
     const STORAGE_KEY = "public_display_board_v1";
+    const SAFETY_STORAGE_KEY = "public_display_board_safety_v1";
+
+    // 安全掲示板の固定6ボックス（初期値）
+    const DEFAULT_SAFETY_BOXES = [
+      { id: "safety_remarks", title: "安全パトロールの指摘事項", body: "" },
+      { id: "safety_schedule", title: "安全パトロール日程", body: "" },
+      { id: "safety_doctor", title: "産業医工場巡視より", body: "" },
+      { id: "safety_record", title: "安全成績（10 月2日～11 月4日まで）", body: "" },
+      { id: "safety_overtime", title: "長時間労働と健康障害防止", body: "" },
+      { id: "safety_wire", title: "今月のワイヤー点検色", body: "" },
+    ];
 
     // DOM参照
     const titleInput = document.getElementById("titleInput");
@@ -482,7 +483,9 @@
 
     // データ
     let posts = loadPosts();
+    let safetyBoxes = loadSafetyBoxes();
     let activeFilter = "all"; // タブの状態
+
     updateMode();
     renderList();
 
@@ -508,7 +511,51 @@
       });
     });
 
-    // ===== 関数群 =====
+    // ===== 安全掲示板の保存・読込 =====
+    function loadSafetyBoxes() {
+      try {
+        const raw = localStorage.getItem(SAFETY_STORAGE_KEY);
+        if (!raw) return DEFAULT_SAFETY_BOXES.slice();
+        const parsed = JSON.parse(raw);
+        // もしボックス数が変わった場合に備えて、IDでマージ
+        const map = new Map(parsed.map((b) => [b.id, b]));
+        return DEFAULT_SAFETY_BOXES.map((b) =>
+          map.has(b.id) ? { ...b, body: map.get(b.id).body || "" } : b
+        );
+      } catch (e) {
+        console.error(e);
+        return DEFAULT_SAFETY_BOXES.slice();
+      }
+    }
+
+    function saveSafetyBoxes() {
+      localStorage.setItem(SAFETY_STORAGE_KEY, JSON.stringify(safetyBoxes));
+    }
+
+    function updateSafetyBox(id, newBody) {
+      const box = safetyBoxes.find((b) => b.id === id);
+      if (!box) return;
+      box.body = newBody;
+      saveSafetyBoxes();
+    }
+
+    // ===== 通常掲示の保存・読込 =====
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    function savePosts(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    // ===== 表示切替 =====
     function updateMode() {
       // 安全タブのときだけ黄色い安全掲示板モード
       if (activeFilter === "safety") {
@@ -518,6 +565,7 @@
       }
     }
 
+    // ===== イベント処理 =====
     function handleAdd() {
       const title = titleInput.value.trim();
       const body = bodyInput.value.trim();
@@ -548,7 +596,7 @@
     }
 
     function handleClearAll() {
-      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？")) {
+      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？（安全タブの固定欄は消えません）」")) {
         return;
       }
       posts = [];
@@ -563,25 +611,17 @@
       renderList();
     }
 
-    function loadPosts() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        return JSON.parse(raw);
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    }
-
-    function savePosts(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-
+    // ===== 描画 =====
     function renderList() {
       listContainer.innerHTML = "";
 
-      // フィルタリング
+      // 安全タブは固定6箱を表示
+      if (activeFilter === "safety") {
+        renderSafetyBoxes();
+        return;
+      }
+
+      // 通常タブ（全体・管理・製造・ニュース）
       let target = posts;
       if (activeFilter !== "all") {
         target = posts.filter((p) => p.dept === activeFilter);
@@ -652,6 +692,44 @@
       });
     }
 
+    function renderSafetyBoxes() {
+      safetyBoxes.forEach((box) => {
+        const wrap = document.createElement("article");
+        wrap.className = "safety-card";
+
+        const header = document.createElement("div");
+        header.className = "safety-card-header";
+        header.textContent = box.title;
+
+        const body = document.createElement("div");
+        body.className = "safety-card-body";
+        const textarea = document.createElement("textarea");
+        textarea.value = box.body || "";
+        textarea.addEventListener("change", () => {
+          updateSafetyBox(box.id, textarea.value);
+        });
+        body.appendChild(textarea);
+
+        const footer = document.createElement("div");
+        footer.className = "safety-card-footer";
+        const saveBtn = document.createElement("button");
+        saveBtn.className = "secondary";
+        saveBtn.textContent = "保存";
+        saveBtn.addEventListener("click", () => {
+          updateSafetyBox(box.id, textarea.value);
+          alert("保存しました");
+        });
+        footer.appendChild(saveBtn);
+
+        wrap.appendChild(header);
+        wrap.appendChild(body);
+        wrap.appendChild(footer);
+
+        listContainer.appendChild(wrap);
+      });
+    }
+
+    // ===== ユーティリティ =====
     function clearForm() {
       bodyInput.value = "";
       importantInput.value = "normal";
