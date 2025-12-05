@@ -4,17 +4,15 @@
   <meta charset="UTF-8" />
   <title>情報発信掲示板システム</title>
   <style>
-    /* ===== テーマ色（安全掲示板ぽい黄色） ===== */
+    /* ===== 基本テーマ（グレー） ===== */
     :root {
-      --bg-color: #facc15;         /* ページの背景色（黄） */
-      --panel-bg: #facc15;         /* パネル周りも黄に合わせる */
-      --card-bg: #ffffff;          /* 箱（カード）の背景 */
-      --accent: #111827;           /* 見出しの黒 */
-      --accent-soft: #1f2937;      /* 濃いグレー */
-      --border: #111827;           /* 枠線（黒っぽく） */
+      --bg-color: #f3f4f6;         /* ページの背景色 */
+      --panel-bg: #ffffff;         /* パネルの背景 */
+      --accent: #2563eb;           /* メインの青 */
+      --accent-soft: #dbeafe;      /* 薄い青 */
+      --border: #d1d5db;           /* 枠線 */
       --text-main: #111827;        /* 文字色（メイン） */
-      --text-sub: #4b5563;         /* 文字色（サブ） */
-      --badge-green: #16a34a;
+      --text-sub: #6b7280;         /* 文字色（サブ） */
     }
 
     * {
@@ -30,7 +28,7 @@
     }
 
     .page {
-      max-width: 1100px;
+      max-width: 1000px;
       margin: 16px auto 32px;
       padding: 16px;
     }
@@ -42,7 +40,7 @@
 
     header h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 24px;
     }
 
     header p {
@@ -56,43 +54,42 @@
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin: 12px 0 12px;
+      margin: 8px 0 12px;
+      border-bottom: 1px solid var(--border);
     }
 
     .tab {
-      border: 1px solid var(--accent);
-      background: #fef9c3;
+      border: none;
+      background: transparent;
       padding: 6px 10px;
       cursor: pointer;
       font-size: 13px;
-      border-radius: 999px;
-      color: var(--accent-soft);
+      border-radius: 6px 6px 0 0;
+      color: var(--text-sub);
     }
 
     .tab.active {
-      background-color: var(--accent);
-      color: #ffffff;
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-bottom-color: var(--bg-color);
     }
 
-    /* ===== パネル共通（フォームと一覧の枠） ===== */
+    /* ===== パネル共通 ===== */
     .panel {
       background-color: var(--panel-bg);
+      border: 1px solid var(--border);
       border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
       margin-bottom: 12px;
     }
 
     .panel h2 {
-      margin: 0;
+      margin: 0 0 8px;
       font-size: 16px;
-      padding: 8px 12px;
-      background-color: var(--accent);
-      color: #ffffff;
-      border-radius: 8px 8px 0 0;
-    }
-
-    .panel-body {
-      padding: 10px 12px 12px;
-      border-radius: 0 0 8px 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
     }
 
     /* ===== 入力フォーム ===== */
@@ -116,7 +113,7 @@
       padding: 4px 6px;
       border-radius: 4px;
       border: 1px solid var(--border);
-      background-color: #fefce8;
+      background-color: #f9fafb;
       color: var(--text-main);
     }
 
@@ -125,7 +122,7 @@
     select:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px #fef9c3;
+      box-shadow: 0 0 0 1px var(--accent-soft);
       background-color: #ffffff;
     }
 
@@ -154,8 +151,8 @@
     }
 
     button:hover {
-      background-color: #000000;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.45);
+      background-color: #1d4ed8;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
     }
 
     button:active {
@@ -178,31 +175,26 @@
       background-color: #fecaca;
     }
 
-    /* ===== 掲示一覧を「箱」レイアウトにする ===== */
+    /* ===== 通常の掲示一覧（縦並び） ===== */
     .list-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 12px;
+      max-height: 480px;
+      overflow-y: auto;
     }
 
     .item {
-      background-color: var(--card-bg);
-      border-radius: 6px;
-      border: 2px solid var(--border);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      min-height: 120px;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 0;
+    }
+
+    .item:last-child {
+      border-bottom: none;
     }
 
     .item-header {
       display: flex;
       justify-content: space-between;
       gap: 8px;
-      align-items: center;
-      padding: 6px 10px;
-      background-color: #111827;
-      color: #f9fafb;
+      align-items: baseline;
     }
 
     .item-title {
@@ -212,22 +204,19 @@
 
     .item-meta {
       font-size: 11px;
-      color: #e5e7eb;
+      color: var(--text-sub);
       text-align: right;
     }
 
     .item-body {
-      flex: 1;
-      padding: 8px 10px 6px;
+      margin-top: 4px;
       font-size: 13px;
       white-space: pre-wrap;
-      background-color: #ffffff;
     }
 
     .item-actions {
-      padding: 4px 10px 8px;
+      margin-top: 4px;
       text-align: right;
-      background-color: #ffffff;
     }
 
     .item-actions button {
@@ -248,27 +237,25 @@
       padding: 1px 6px;
       border-radius: 999px;
       margin-right: 4px;
-      background-color: #e5e7eb;
-      color: #111827;
     }
 
     .badge-dept-management {
-      background-color: #bfdbfe;
+      background-color: #dbeafe;
       color: #1d4ed8;
     }
 
     .badge-dept-factory {
-      background-color: #bbf7d0;
+      background-color: #dcfce7;
       color: #15803d;
     }
 
     .badge-dept-news {
-      background-color: #fecaca;
+      background-color: #fee2e2;
       color: #b91c1c;
     }
 
     .badge-dept-safety {
-      background-color: #fef08a;
+      background-color: #fef9c3;
       color: #92400e;
     }
 
@@ -291,8 +278,107 @@
       }
 
       header h1 {
-        font-size: 22px;
+        font-size: 20px;
       }
+    }
+
+    /* ============================== */
+    /*   ここから「安全タブ」専用見た目   */
+    /* ============================== */
+
+    /* 安全タブのときだけ body に safety-mode クラスが付く */
+    body.safety-mode {
+      background-color: #facc15; /* 全体黄色 */
+    }
+
+    body.safety-mode .page {
+      max-width: 1100px;
+    }
+
+    body.safety-mode header h1 {
+      color: #111827;
+    }
+
+    body.safety-mode header p {
+      color: #111827;
+    }
+
+    body.safety-mode .panel {
+      background-color: #facc15;
+      border: none;
+      box-shadow: none;
+    }
+
+    body.safety-mode .panel.list-panel {
+      padding: 0;
+    }
+
+    body.safety-mode .panel.list-panel h2 {
+      margin: 0;
+      padding: 8px 12px;
+      background-color: #111827;
+      color: #f9fafb;
+      border-radius: 8px 8px 0 0;
+      border-bottom: 2px solid #111827;
+    }
+
+    body.safety-mode .panel.list-panel .list-container {
+      padding: 10px 12px 12px;
+    }
+
+    /* 一覧を「箱」のグリッドレイアウトに変更 */
+    body.safety-mode .list-container {
+      max-height: none;          /* スクロール無し（全体を貼り出すイメージ） */
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+
+    body.safety-mode .item {
+      border-bottom: none;
+      background-color: #ffffff;
+      border-radius: 6px;
+      border: 2px solid #111827;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 120px;
+    }
+
+    body.safety-mode .item-header {
+      background-color: #111827;
+      color: #f9fafb;
+      padding: 6px 10px;
+      border-bottom: 1px solid #111827;
+      align-items: center;
+    }
+
+    body.safety-mode .item-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    body.safety-mode .item-meta {
+      color: #e5e7eb;
+    }
+
+    body.safety-mode .item-body {
+      flex: 1;
+      margin: 0;
+      padding: 8px 10px 6px;
+      font-size: 13px;
+      background-color: #ffffff;
+    }
+
+    body.safety-mode .item-actions {
+      margin-top: 0;
+      padding: 4px 10px 8px;
+      background-color: #ffffff;
+    }
+
+    body.safety-mode .item-actions button {
+      font-size: 11px;
+      padding: 3px 8px;
     }
   </style>
 </head>
@@ -300,7 +386,7 @@
   <div class="page">
     <header>
       <h1>情報発信掲示板システム</h1>
-      <p>管理部・製造部・会社ニュース・安全掲示板を「箱」レイアウトで表示（このPC保存版）</p>
+      <p>管理部・製造部などの社内連絡をタブで切替（安全タブだけ黄色い箱レイアウト）</p>
     </header>
 
     <!-- タブ（絞り込み） -->
@@ -315,63 +401,60 @@
     <!-- 入力パネル -->
     <section class="panel">
       <h2>新しいお知らせを投稿</h2>
-      <div class="panel-body">
-        <div class="form-row">
-          <label for="titleInput">タイトル</label>
-          <input
-            id="titleInput"
-            type="text"
-            placeholder="例：安全パトロール日程のお知らせ"
-          />
-        </div>
 
-        <div class="form-row">
-          <label for="deptInput">掲示区分</label>
-          <select id="deptInput">
-            <option value="management">管理部からのお知らせ</option>
-            <option value="factory">製造部からのお知らせ</option>
-            <option value="news">会社ニュース</option>
-            <option value="safety">安全掲示板</option>
-          </select>
-        </div>
+      <div class="form-row">
+        <label for="titleInput">タイトル</label>
+        <input
+          id="titleInput"
+          type="text"
+          placeholder="例：安全パトロール日程のお知らせ"
+        />
+      </div>
 
-        <div class="form-row">
-          <label for="bodyInput">本文</label>
-          <textarea
-            id="bodyInput"
-            placeholder="掲示内容を入力してください"
-          ></textarea>
-        </div>
+      <div class="form-row">
+        <label for="deptInput">部署 / 区分</label>
+        <select id="deptInput">
+          <option value="management">管理部からのお知らせ</option>
+          <option value="factory">製造部からのお知らせ</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
 
-        <div class="form-row">
-          <label for="importantInput">重要度</label>
-          <select id="importantInput">
-            <option value="normal">通常</option>
-            <option value="important">重要</option>
-          </select>
-        </div>
+      <div class="form-row">
+        <label for="bodyInput">本文</label>
+        <textarea
+          id="bodyInput"
+          placeholder="掲示内容を入力してください"
+        ></textarea>
+      </div>
 
-        <div class="form-row">
-          <label for="authorInput">投稿者（任意）</label>
-          <input id="authorInput" type="text" placeholder="例：安全衛生委員会" />
-        </div>
+      <div class="form-row">
+        <label for="importantInput">重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
 
-        <div class="button-row">
-          <button id="addButton">投稿する</button>
-          <button id="clearButton" class="danger">
-            このブラウザの掲示をすべて削除
-          </button>
-        </div>
+      <div class="form-row">
+        <label for="authorInput">投稿者（任意）</label>
+        <input id="authorInput" type="text" placeholder="例：安全衛生委員会" />
+      </div>
+
+      <div class="button-row">
+        <button id="addButton">投稿する</button>
+        <button id="clearButton" class="danger">
+          このブラウザの掲示をすべて削除
+        </button>
       </div>
     </section>
 
     <!-- 一覧パネル -->
-    <section class="panel">
+    <section class="panel list-panel">
       <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
-      <div class="panel-body">
-        <div id="listContainer" class="list-container">
-          <!-- JSで埋まる -->
-        </div>
+      <div id="listContainer" class="list-container">
+        <!-- JSで埋まる -->
       </div>
     </section>
 
@@ -395,10 +478,12 @@
     const clearButton = document.getElementById("clearButton");
     const listContainer = document.getElementById("listContainer");
     const tabs = document.querySelectorAll(".tab");
+    const bodyEl = document.body;
 
     // データ
     let posts = loadPosts();
     let activeFilter = "all"; // タブの状態
+    updateMode();
     renderList();
 
     // ===== イベント =====
@@ -418,11 +503,21 @@
         tabs.forEach((t) => t.classList.remove("active"));
         tab.classList.add("active");
         activeFilter = tab.dataset.filter;
+        updateMode();
         renderList();
       });
     });
 
     // ===== 関数群 =====
+    function updateMode() {
+      // 安全タブのときだけ黄色い安全掲示板モード
+      if (activeFilter === "safety") {
+        bodyEl.classList.add("safety-mode");
+      } else {
+        bodyEl.classList.remove("safety-mode");
+      }
+    }
+
     function handleAdd() {
       const title = titleInput.value.trim();
       const body = bodyInput.value.trim();
@@ -558,7 +653,6 @@
     }
 
     function clearForm() {
-      // タイトルと部署は残すと連投しやすいので本文だけリセット
       bodyInput.value = "";
       importantInput.value = "normal";
       bodyInput.focus();
