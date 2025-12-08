@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>株式会社寺田鉄工所掲示板</title>
+  <title>株式会社寺田鉄工所 掲示板</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root {
       --bg-color: #f3f4f6;
@@ -12,147 +13,194 @@
       --border: #d1d5db;
       --text-main: #111827;
       --text-sub: #6b7280;
-
-      /* ヘッダー用（色設定で変わる） */
-      --header-bg: #ffffff;
-      --header-text-main: #111827;
-      --header-text-sub: #6b7280;
+      --header-bg: #1f2933; /* 初期ヘッダー色（設定で上書き） */
+      --safety-bg: #fff9c4; /* 安全タブ選択時の背景 */
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background-color: var(--bg-color);
       color: var(--text-main);
-      transition: background-color 0.2s ease;
     }
-
-    /* ★安全掲示板タブ選択時だけ、全体の背景色を黄色にする★ */
-    body.safety-mode {
-      background-color: #facc15; /* ご指定の黄色 */
-    }
-
     .page {
       max-width: 1200px;
-      margin: 16px auto 32px;
-      padding: 16px;
+      margin: 10px auto 24px;
+      padding: 0 10px;
     }
 
-    /* レイアウト：左＝掲示板、右＝社内コンテンツ */
-    .layout {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .main-column {
-      flex: 2;
-      min-width: 0;
-    }
-
-    .side-column {
-      flex: 1;
-      min-width: 260px;
-    }
-
-    /* ヘッダー */
+    /* ===== ヘッダー ===== */
     header {
-      margin-bottom: 12px;
+      background: var(--header-bg);
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 14px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: flex-end;
-      gap: 12px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background-color: var(--header-bg);
-      color: var(--header-text-main);
+      margin-bottom: 10px;
     }
-
-    .header-main h1 {
+    .header-left h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 20px;
     }
-
-    .header-main p {
-      margin: 4px 0 0;
-      font-size: 12px;
-      color: var(--header-text-sub);
-    }
-
-    .date-line {
+    .header-left p {
       margin: 2px 0 0;
+      font-size: 11px;
+      opacity: 0.85;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-size: 12px;
-      color: var(--header-text-sub);
     }
-
-    .header-actions {
-      white-space: nowrap;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      align-items: flex-end;
+    .header-date {
+      margin-right: 8px;
     }
-
-    /* タブ */
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin: 8px 0 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tab {
-      border: none;
-      background: transparent;
-      padding: 6px 10px;
+    .header-btn {
       cursor: pointer;
-      font-size: 13px;
-      border-radius: 6px 6px 0 0;
-      color: var(--text-sub);
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      color: #111827;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .header-btn:hover {
+      background: #f3f4f6;
     }
 
-    .tab.active {
-      background-color: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--border);
-      border-bottom-color: var(--bg-color);
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.4fr) minmax(260px, 1.2fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
-    /* 安全掲示板タブだけ少し強調 */
-    .tab-safety {
-      color: #92400e;
-    }
-
-    .tab-safety.active {
-      background-color: #fef9c3;
-      color: #92400e;
-      border: 1px solid #facc15;
-      border-bottom-color: var(--bg-color);
-    }
-
-    /* パネル */
     .panel {
       background-color: var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
+      padding: 10px 12px;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      margin-bottom: 8px;
     }
-
     .panel h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
+      margin: 0 0 6px;
+      font-size: 15px;
       border-bottom: 1px solid var(--border);
       padding-bottom: 4px;
     }
 
-    /* ボタン */
+    /* ===== タブ（部署フィルタ） ===== */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .tab-btn {
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      font-size: 12px;
+      color: #374151;
+    }
+    .tab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ===== 投稿一覧 ===== */
+    .list-container {
+      max-height: 420px;
+      overflow-y: auto;
+    }
+    .item {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 0;
+    }
+    .item:last-child { border-bottom: none; }
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+    .item-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .item-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: right;
+    }
+    .item-body {
+      margin-top: 4px;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+    .item-image {
+      margin-top: 6px;
+    }
+    .item-image img {
+      max-width: 100%;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-right: 4px;
+    }
+    .badge-dept-management {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+    .badge-dept-factory {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+    .badge-dept-news {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+    .badge-dept-safety {
+      background-color: #fef9c3;
+      color: #92400e;
+    }
+    .badge-important {
+      border: 1px solid #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+    .item-actions {
+      margin-top: 4px;
+      text-align: right;
+    }
+    .item-actions button {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .empty {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
     button {
       cursor: pointer;
       font-family: inherit;
@@ -164,53 +212,80 @@
       color: #ffffff;
       transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
     }
-
     button:hover {
       background-color: #1d4ed8;
       box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
     }
-
     button:active {
       transform: translateY(1px);
       box-shadow: none;
     }
-
     button.secondary {
       background-color: #ffffff;
       color: var(--accent);
+      border-color: var(--accent);
     }
-
     button.danger {
       border-color: #b91c1c;
       color: #b91c1c;
       background-color: #fee2e2;
     }
-
     button.danger:hover {
       background-color: #fecaca;
     }
 
-    button.small {
-      padding: 4px 8px;
-      font-size: 12px;
+    /* ===== モーダル ===== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
     }
-
-    /* 入力フォーム */
+    .modal {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 14px 16px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.4);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+    .modal-close {
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-size: 18px;
+      line-height: 1;
+      padding: 2px 6px;
+    }
     .form-row {
       display: flex;
       flex-direction: column;
       margin-bottom: 8px;
     }
-
     .form-row label {
       font-size: 12px;
       color: var(--text-sub);
       margin-bottom: 2px;
     }
-
     input[type="text"],
     textarea,
-    select {
+    select,
+    input[type="color"] {
       font-family: inherit;
       font-size: 13px;
       padding: 4px 6px;
@@ -219,8 +294,11 @@
       background-color: #f9fafb;
       color: var(--text-main);
     }
-
-    input[type="text"]:focus,
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    input:focus,
     textarea:focus,
     select:focus {
       outline: none;
@@ -228,1019 +306,515 @@
       box-shadow: 0 0 0 1px var(--accent-soft);
       background-color: #ffffff;
     }
-
-    textarea {
-      resize: vertical;
-      min-height: 80px;
-    }
-
-    input[type="file"] {
-      font-size: 12px;
-    }
-
-    .help-text {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-top: 2px;
-    }
-
     .button-row {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 4px;
+      justify-content: flex-end;
     }
-
-    /* 写真プレビュー */
-    .image-preview-wrapper {
-      margin-top: 4px;
-    }
-
-    .image-preview-label {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-bottom: 2px;
-    }
-
     .image-preview {
-      max-width: 240px;
-      max-height: 160px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      object-fit: cover;
-      display: block;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    /* 掲示一覧 */
-    .list-container {
-      max-height: 480px;
-      overflow-y: auto;
-    }
-
-    .item {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 8px 0;
-    }
-
-    .item:last-child {
-      border-bottom: none;
-    }
-
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      align-items: baseline;
-    }
-
-    .item-title {
-      font-weight: 600;
-      font-size: 14px;
-    }
-
-    .item-meta {
-      font-size: 11px;
-      color: var(--text-sub);
-      text-align: right;
-    }
-
-    .item-body {
       margin-top: 4px;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+    .image-preview img {
+      max-width: 100%;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      margin-top: 4px;
+    }
+
+    /* ===== 右側コンテンツ ===== */
+    .side-panel-title {
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .video-frame {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #111827;
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
       font-size: 13px;
+      text-align: center;
+      padding: 8px;
+    }
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ===== 安全掲示板カード ===== */
+    .safety-extra-wrapper {
+      margin-top: 8px;
+    }
+    .safety-extra-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+    @media (max-width: 700px) {
+      .safety-extra-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .safety-card {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #111827;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .safety-card-header {
+      background: #111827;
+      color: #ffffff;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .safety-card-body {
+      padding: 8px 10px;
+      font-size: 13px;
+      flex: 1;
+    }
+    .safety-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 4px;
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+    .safety-toolbar button {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+    }
+    .safety-editable {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 6px;
+      min-height: 60px;
+      outline: none;
       white-space: pre-wrap;
     }
-
-    .item-image {
-      margin-top: 6px;
-      max-width: 100%;
-      max-height: 240px;
-      border-radius: 8px;
-      object-fit: cover;
-      display: block;
+    .safety-editable:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
     }
-
-    .badge {
-      display: inline-block;
-      font-size: 11px;
-      padding: 1px 6px;
-      border-radius: 999px;
-      margin-right: 4px;
-    }
-
-    .badge-dept-management { background-color: #dbeafe; color: #1d4ed8; }
-    .badge-dept-factory   { background-color: #dcfce7; color: #15803d; }
-    .badge-dept-news      { background-color: #fee2e2; color: #b91c1c; }
-    .badge-dept-safety    { background-color: #fef9c3; color: #92400e; }
-
-    .badge-important {
-      border: 1px solid #b91c1c;
-      color: #b91c1c;
-      background-color: #fee2e2;
-    }
-
-    .item-actions {
-      margin-top: 4px;
-      text-align: right;
-    }
-
-    .item-actions button {
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 999px;
-    }
-
-    .empty {
-      font-size: 13px;
-      color: var(--text-sub);
-    }
+    .safety-small { font-size: 12px; }
+    .safety-medium { font-size: 14px; }
+    .safety-large { font-size: 18px; }
 
     footer {
       margin-top: 8px;
       font-size: 11px;
       color: var(--text-sub);
     }
-
-    /* ===== 安全掲示板ボード（安全タブのときだけ表示） ===== */
-    .safety-board-panel {
-      margin-top: 4px;
-    }
-
-    .safety-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .safety-card {
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #111827;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      min-height: 140px;
-    }
-
-    .safety-card-header {
-      padding: 6px 10px;
-      font-size: 14px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .safety-card-header span.icon {
-      font-size: 14px;
-      opacity: 0.8;
-    }
-
-    .safety-card-body {
-      background-color: #ffffff;
-      color: #111827;
-      padding: 8px 10px;
-      flex: 1;
-    }
-
-    .safety-style-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 4px;
-      font-size: 11px;
-      color: #374151;
-    }
-
-    .safety-style-row select {
-      font-size: 11px;
-      padding: 2px 4px;
-    }
-
-    .safety-style-row input[type="checkbox"] {
-      transform: scale(0.9);
-      margin-right: 2px;
-    }
-
-    .safety-card-body textarea {
-      width: 100%;
-      height: 100%;
-      min-height: 80px;
-      border-radius: 4px;
-      border: 1px solid #e5e7eb;
-      font-family: inherit;
-      font-size: 13px;
-      padding: 4px 6px;
-      resize: vertical;
-    }
-
-    .safety-card-body textarea:focus {
-      outline: none;
-      border-color: #f97316;
-      box-shadow: 0 0 0 1px #fed7aa;
-    }
-
-    .safety-save-row {
-      margin-top: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .safety-save-row .status {
-      font-size: 11px;
-      color: #374151;
-    }
-
-    /* ヘッダー色設定パネル */
-    .header-color-panel h2 {
-      font-size: 14px;
-    }
-
-    .header-color-presets {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    /* サイド：社内コンテンツ */
-    .side-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .side-header h2 {
-      margin: 0;
-      font-size: 15px;
-      border: none;
-      padding-bottom: 0;
-    }
-
-    .side-section-title {
-      font-size: 12px;
-      color: var(--text-sub);
-      margin: 0 0 6px;
-    }
-
-    .video-frame-wrapper {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%; /* 16:9 */
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #000;
-      margin-bottom: 6px;
-    }
-
-    .video-frame-wrapper iframe {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .side-link {
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    .side-link a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .side-link a:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 900px) {
-      .layout {
-        flex-direction: column;
-      }
-
-      .side-column {
-        width: 100%;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .page {
-        padding: 8px;
-        margin: 8px auto 16px;
-      }
-
-      .header-main h1 {
-        font-size: 20px;
-      }
-
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .header-actions {
-        align-self: stretch;
-        flex-direction: row;
-        justify-content: flex-end;
-      }
-    }
   </style>
 </head>
 <body>
   <div class="page">
+    <header id="mainHeader">
+      <div class="header-left">
+        <h1>株式会社寺田鉄工所 掲示板</h1>
+        <p>管理部・製造部・安全・会社ニュースなど、社内情報を一元表示します（クラウド共有版）</p>
+      </div>
+      <div class="header-right">
+        <span id="todayText" class="header-date"></span>
+        <button id="openNewPost" class="header-btn">＋ 新規投稿</button>
+        <button id="openSettings" class="header-btn">⚙ 設定</button>
+      </div>
+    </header>
 
-    <div class="layout">
-      <!-- ===== 左：掲示板 ===== -->
-      <div class="main-column">
-        <header>
-          <div class="header-main">
-            <h1>株式会社寺田鉄工所掲示板</h1>
-            <p>管理部・製造部・会社ニュース・安全掲示板の社内連絡をまとめて表示（このPC保存版・写真添付対応）</p>
-            <p id="todayDate" class="date-line"></p>
+    <div id="mainLayout" class="main-layout">
+      <!-- ===== 左側：掲示板 ===== -->
+      <div>
+        <section class="panel" id="boardPanel">
+          <h2>掲示一覧</h2>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="all">全体</button>
+            <button class="tab-btn" data-tab="management">管理部</button>
+            <button class="tab-btn" data-tab="factory">製造部</button>
+            <button class="tab-btn" data-tab="news">会社ニュース</button>
+            <button class="tab-btn" data-tab="safety">安全掲示板</button>
           </div>
-          <div class="header-actions">
-            <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
-            <button id="toggleHeaderColorSettings" class="secondary small">⚙ ヘッダー色</button>
-          </div>
-        </header>
-
-        <!-- ヘッダー色設定パネル -->
-        <section id="headerColorSettings" class="panel header-color-panel hidden">
-          <h2>ヘッダー表示の設定</h2>
-          <div class="form-row">
-            <label>プリセット色</label>
-            <div class="header-color-presets">
-              <button type="button" class="secondary small header-color-btn" data-color="#ffffff">白</button>
-              <button type="button" class="secondary small header-color-btn" data-color="#1f2937">ダーク</button>
-              <button type="button" class="secondary small header-color-btn" data-color="#2563eb">青</button>
-              <button type="button" class="secondary small header-color-btn" data-color="#111827">黒</button>
-              <button type="button" class="secondary small header-color-btn" data-color="#facc15">安全イエロー</button>
-            </div>
-          </div>
-          <div class="form-row">
-            <label for="headerColorPicker">カスタム色</label>
-            <input id="headerColorPicker" type="color" />
-          </div>
-        </section>
-
-        <!-- タブ（絞り込み） -->
-        <nav class="tabs">
-          <button class="tab active" data-filter="all">全体情報</button>
-          <button class="tab" data-filter="management">管理部</button>
-          <button class="tab" data-filter="factory">製造部</button>
-          <button class="tab" data-filter="news">会社ニュース</button>
-          <button class="tab tab-safety" data-filter="safety">安全掲示板</button>
-        </nav>
-
-        <!-- 入力パネル -->
-        <section id="postPanel" class="panel hidden">
-          <h2>新しいお知らせを投稿</h2>
-
-          <div class="form-row">
-            <label for="titleInput">タイトル</label>
-            <input id="titleInput" type="text" placeholder="例：明日の朝礼について" />
-          </div>
-
-          <div class="form-row">
-            <label for="deptInput">部署</label>
-            <select id="deptInput">
-              <option value="management">管理部からのお知らせ</option>
-              <option value="factory">製造部からのお知らせ</option>
-              <option value="news">会社ニュース</option>
-              <option value="safety">安全掲示板</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="bodyInput">本文</label>
-            <textarea id="bodyInput" placeholder="掲示内容を入力してください"></textarea>
-          </div>
-
-          <div class="form-row">
-            <label for="importantInput">重要度</label>
-            <select id="importantInput">
-              <option value="normal">通常</option>
-              <option value="important">重要</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="authorInput">投稿者（任意）</label>
-            <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
-          </div>
-
-          <div class="form-row">
-            <label for="imageInput">写真を添付（任意）</label>
-            <input id="imageInput" type="file" accept="image/*" />
-            <div class="help-text">
-              ※ 1枚のみ。500KB〜1MB程度まで推奨（大きすぎると保存できない場合があります）。
-            </div>
-            <div id="imagePreviewWrapper" class="image-preview-wrapper hidden">
-              <div class="image-preview-label">プレビュー</div>
-              <img id="imagePreview" class="image-preview" alt="画像プレビュー" />
-            </div>
-          </div>
-
-          <div class="button-row">
-            <button id="addButton">投稿する</button>
-            <button id="clearButton" class="danger">このブラウザの掲示をすべて削除</button>
-          </div>
-        </section>
-
-        <!-- 一覧パネル -->
-        <section class="panel">
-          <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
           <div id="listContainer" class="list-container"></div>
-        </section>
 
-        <!-- ★安全掲示板ボード：安全タブのときだけ表示★ -->
-        <section id="safetyBoardPanel" class="panel safety-board-panel hidden">
-          <h2>安全掲示板ボード</h2>
-          <p class="help-text">
-            安全パトロールの指摘事項・安全成績・長時間労働と健康障害防止・今月のワイヤー点検色・産業医コメントなどを、
-            月単位でまとめて掲示するエリアです（このPCに保存されます）。
-          </p>
-
-          <div class="safety-grid">
-            <!-- 1. 安全パトロールの指摘事項 -->
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>安全パトロールの指摘事項</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <div class="safety-style-row">
-                  <label>
-                    文字サイズ
-                    <select class="safety-size" data-key="patrolFindings">
-                      <option value="12">小</option>
-                      <option value="13">標準</option>
-                      <option value="16">大</option>
-                      <option value="20">特大</option>
-                    </select>
-                  </label>
-                  <label>
-                    <input type="checkbox" class="safety-bold" data-key="patrolFindings" />
-                    太字
-                  </label>
+          <!-- 安全掲示板専用カード -->
+          <div id="safetyExtraWrapper" class="safety-extra-wrapper" style="display:none;">
+            <div class="safety-extra-grid">
+              <!-- 長時間労働と健康障害防止 -->
+              <div class="safety-card">
+                <div class="safety-card-header">長時間労働と健康障害防止</div>
+                <div class="safety-card-body">
+                  <div class="safety-toolbar">
+                    <button data-target="safety1" data-size="small" class="secondary">小</button>
+                    <button data-target="safety1" data-size="medium" class="secondary">中</button>
+                    <button data-target="safety1" data-size="large" class="secondary">大</button>
+                    <button data-target="safety1" data-style="bold" class="secondary">太字</button>
+                    <button data-target="safety1" data-action="save" class="secondary">保存</button>
+                  </div>
+                  <div id="safety1Content" class="safety-editable safety-medium" contenteditable="true">
+長時間労働は心身の健康に大きな影響を与えます。
+「早めの相談」「早めの休養」「早めの受診」を心がけ、
+無理をせず、安全第一で働きましょう。
+                  </div>
                 </div>
-                <textarea
-                  class="safety-input"
-                  data-key="patrolFindings"
-                  placeholder="例：ワイヤーロープ未点検（B中・門型）、ブリッジ未使用 など"
-                ></textarea>
+              </div>
+              <!-- 今月のワイヤー点検色 -->
+              <div class="safety-card">
+                <div class="safety-card-header">今月のワイヤー点検色</div>
+                <div class="safety-card-body">
+                  <div class="safety-toolbar">
+                    <button data-target="safety2" data-size="small" class="secondary">小</button>
+                    <button data-target="safety2" data-size="medium" class="secondary">中</button>
+                    <button data-target="safety2" data-size="large" class="secondary">大</button>
+                    <button data-target="safety2" data-style="bold" class="secondary">太字</button>
+                    <button data-target="safety2" data-action="save" class="secondary">保存</button>
+                  </div>
+                  <div id="safety2Content" class="safety-editable safety-medium" contenteditable="true">
+今月のワイヤー点検色：●●色
+使用前点検・月次点検を必ず実施し、
+摩耗・キンク・素線切れなど異常があれば即交換してください。
+                  </div>
+                </div>
               </div>
             </div>
-
-            <!-- 2. 安全成績 -->
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>安全成績</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <div class="safety-style-row">
-                  <label>
-                    文字サイズ
-                    <select class="safety-size" data-key="safetyRecord">
-                      <option value="12">小</option>
-                      <option value="13">標準</option>
-                      <option value="16">大</option>
-                      <option value="20">特大</option>
-                    </select>
-                  </label>
-                  <label>
-                    <input type="checkbox" class="safety-bold" data-key="safetyRecord" />
-                    太字
-                  </label>
-                </div>
-                <textarea
-                  class="safety-input"
-                  data-key="safetyRecord"
-                  placeholder="例：連続無災害記録は○○○日です　など"
-                ></textarea>
-              </div>
-            </div>
-
-            <!-- 3. 安全パトロール日程 -->
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>安全パトロール日程</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <div class="safety-style-row">
-                  <label>
-                    文字サイズ
-                    <select class="safety-size" data-key="patrolSchedule">
-                      <option value="12">小</option>
-                      <option value="13">標準</option>
-                      <option value="16">大</option>
-                      <option value="20">特大</option>
-                    </select>
-                  </label>
-                  <label>
-                    <input type="checkbox" class="safety-bold" data-key="patrolSchedule" />
-                    太字
-                  </label>
-                </div>
-                <textarea
-                  class="safety-input"
-                  data-key="patrolSchedule"
-                  placeholder="例：1班 ○月○日（金）〜　といった日程を記入"
-                ></textarea>
-              </div>
-            </div>
-
-            <!-- 4. 長時間労働と健康障害防止 -->
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>長時間労働と健康障害防止</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <div class="safety-style-row">
-                  <label>
-                    文字サイズ
-                    <select class="safety-size" data-key="longWorkHealth">
-                      <option value="12">小</option>
-                      <option value="13">標準</option>
-                      <option value="16">大</option>
-                      <option value="20">特大</option>
-                    </select>
-                  </label>
-                  <label>
-                    <input type="checkbox" class="safety-bold" data-key="longWorkHealth" />
-                    太字
-                  </label>
-                </div>
-                <textarea
-                  class="safety-input"
-                  data-key="longWorkHealth"
-                  placeholder="例：特別延長時間の上限・長時間労働者への面談予定 など"
-                ></textarea>
-              </div>
-            </div>
-
-            <!-- 5. 今月のワイヤー点検色 -->
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>今月のワイヤー点検色</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <div class="safety-style-row">
-                  <label>
-                    文字サイズ
-                    <select class="safety-size" data-key="wireCheckColor">
-                      <option value="12">小</option>
-                      <option value="13">標準</option>
-                      <option value="16">大</option>
-                      <option value="20">特大</option>
-                    </select>
-                  </label>
-                  <label>
-                    <input type="checkbox" class="safety-bold" data-key="wireCheckColor" />
-                    太字
-                  </label>
-                </div>
-                <textarea
-                  class="safety-input"
-                  data-key="wireCheckColor"
-                  placeholder="例：今月の点検色は『黄色』です　など"
-                ></textarea>
-              </div>
-            </div>
-
-            <!-- 6. 産業医工場巡視より／健康情報 -->
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>産業医工場巡視より／健康情報</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <div class="safety-style-row">
-                  <label>
-                    文字サイズ
-                    <select class="safety-size" data-key="doctorComment">
-                      <option value="12">小</option>
-                      <option value="13">標準</option>
-                      <option value="16">大</option>
-                      <option value="20">特大</option>
-                    </select>
-                  </label>
-                  <label>
-                    <input type="checkbox" class="safety-bold" data-key="doctorComment" />
-                    太字
-                  </label>
-                </div>
-                <textarea
-                  class="safety-input"
-                  data-key="doctorComment"
-                  placeholder="例：ノロウイルス・インフルエンザ対策のお願い　など"
-                ></textarea>
-              </div>
-            </div>
-          </div>
-
-          <div class="safety-save-row">
-            <button id="saveSafetyBoardButton" class="secondary">安全ボードを保存</button>
-            <span id="safetySaveStatus" class="status"></span>
           </div>
         </section>
 
         <footer>
-          ※ 掲示内容と写真・安全ボードは、このPCのブラウザ（localStorage）内に保存されます。<br />
-          ※ 写真を大量に保存すると容量制限に達する場合があります。
+          ※ 掲示内容・安全掲示板カード・動画設定・ヘッダー色は Firebase に保存され、全PCで共有されます。
         </footer>
       </div>
 
-      <!-- ===== 右：社内コンテンツ欄 ===== -->
-      <aside class="side-column">
+      <!-- ===== 右側：社内コンテンツ ===== -->
+      <aside>
         <section class="panel">
-          <div class="side-header">
-            <h2>社内コンテンツ</h2>
-            <button id="toggleVideoSettings" class="secondary small">⚙ 設定</button>
-          </div>
-          <p class="side-section-title">
-            TAKA∞チャンネルなど、みんなで共有したい動画を常時表示します。
-          </p>
-
-          <!-- 表示側 -->
-          <div id="videoViewArea">
-            <div id="videoFrameWrapper" class="video-frame-wrapper hidden"></div>
-            <p id="videoPlaceholder" class="help-text">
-              まだ動画が設定されていません。右上の「⚙ 設定」から YouTube の共有URL
-              （<code>https://youtu.be/…</code> など）を登録してください。
-            </p>
-            <p class="side-link">
-              📺 TAKA∞ チャンネル：
-              <a href="https://www.youtube.com/channel/UCydsY3SpEFZ8pEdkTrntNwQ" target="_blank" rel="noopener">
-                YouTubeで開く
-              </a>
-            </p>
-          </div>
-
-          <!-- 設定フォーム -->
-          <div id="videoSettingsArea" class="hidden">
-            <div class="form-row">
-              <label for="videoUrlInput">YouTube の共有URL</label>
-              <input
-                id="videoUrlInput"
-                type="text"
-                placeholder="例： https://youtu.be/XXXXXXXXXXX"
-              />
-              <div class="help-text">
-                ・<code>https://youtu.be/…</code> または
-                <code>https://www.youtube.com/watch?v=…</code> を入力してください。<br />
-                ・チャンネルURLは埋め込みできないので、「おすすめ動画」のURLを1本決めて登録する想定です。
-              </div>
-            </div>
-            <div class="button-row">
-              <button id="saveVideoUrlButton">保存</button>
-              <button id="cancelVideoUrlButton" class="secondary">キャンセル</button>
-            </div>
+          <h2 class="side-panel-title">社内コンテンツ</h2>
+          <div id="videoFrame" class="video-frame">
+            設定画面から YouTube の共有URL を登録すると、ここに動画が表示されます。
           </div>
         </section>
       </aside>
     </div>
   </div>
 
-  <script>
-    // ===== 定数・キー =====
-    const STORAGE_KEY = "public_display_board_v1";
-    const VIDEO_STORAGE_KEY = "company_board_video_url";
-    const SAFETY_BOARD_KEY = "safety_board_v1";
-    const HEADER_COLOR_KEY = "company_board_header_color";
+  <!-- ===== 新規投稿モーダル ===== -->
+  <div id="newPostModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>新しいお知らせを投稿</h2>
+        <button class="modal-close" data-close="newPost">&times;</button>
+      </div>
+      <div class="form-row">
+        <label for="titleInput">タイトル</label>
+        <input id="titleInput" type="text" placeholder="例：明日の朝礼について" />
+      </div>
+      <div class="form-row">
+        <label for="deptInput">部署</label>
+        <select id="deptInput">
+          <option value="management">管理部からのお知らせ</option>
+          <option value="factory">製造部からのお知らせ</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="bodyInput">本文</label>
+        <textarea id="bodyInput" placeholder="掲示内容を入力してください"></textarea>
+      </div>
+      <div class="form-row">
+        <label for="importantInput">重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="authorInput">投稿者（任意）</label>
+        <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
+      </div>
+      <div class="form-row">
+        <label for="imageInput">画像（任意・1枚まで）</label>
+        <input id="imageInput" type="file" accept="image/*" />
+        <div id="imagePreview" class="image-preview"></div>
+      </div>
+      <div class="button-row">
+        <button class="secondary" data-close="newPost">キャンセル</button>
+        <button id="submitPost">投稿する</button>
+      </div>
+    </div>
+  </div>
 
-    // DOM参照（掲示板）
+  <!-- ===== 設定モーダル ===== -->
+  <div id="settingsModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>掲示板の設定</h2>
+        <button class="modal-close" data-close="settings">&times;</button>
+      </div>
+      <div class="form-row">
+        <label for="headerColorInput">ヘッダーの背景色</label>
+        <input id="headerColorInput" type="color" />
+      </div>
+      <div class="form-row">
+        <label for="youtubeUrlInput">YouTube の共有URL</label>
+        <input
+          id="youtubeUrlInput"
+          type="text"
+          placeholder="例：https://www.youtube.com/watch?v=xxxxxxx"
+        />
+        <small style="font-size:11px;color:var(--text-sub);">
+          ※ 共有ボタンからコピーしたURLを貼り付けてください。
+        </small>
+      </div>
+      <div class="button-row">
+        <button class="secondary" data-close="settings">閉じる</button>
+        <button id="saveSettings">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Firebase & アプリロジック ===== -->
+  <script type="module">
+    // ===== Firebase SDK 読み込み =====
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      query,
+      orderBy,
+      onSnapshot,
+      serverTimestamp,
+      doc,
+      setDoc,
+      getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    // ===== あなたの Firebase 設定 =====
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtY0kWxalO0B88AwpQU6bF8B4xxeFh5qc",
+      authDomain: "company-board-e9c21.firebaseapp.com",
+      projectId: "company-board-e9c21",
+      storageBucket: "company-board-e9c21.appspot.com",
+      messagingSenderId: "87763888182",
+      appId: "1:87763888182:web:9238e51b45c7b94b6e5097",
+      measurementId: "G-NTRC5HCN0H"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // ===== DOM 参照 =====
+    const todayText = document.getElementById("todayText");
+    const mainHeader = document.getElementById("mainHeader");
+    const mainLayout = document.getElementById("mainLayout");
+    const boardPanel = document.getElementById("boardPanel");
+    const listContainer = document.getElementById("listContainer");
+    const tabs = document.querySelectorAll(".tab-btn");
+    const safetyExtraWrapper = document.getElementById("safetyExtraWrapper");
+
+    const openNewPostBtn = document.getElementById("openNewPost");
+    const openSettingsBtn = document.getElementById("openSettings");
+    const newPostModalBackdrop = document.getElementById("newPostModalBackdrop");
+    const settingsModalBackdrop = document.getElementById("settingsModalBackdrop");
+
     const titleInput = document.getElementById("titleInput");
     const deptInput = document.getElementById("deptInput");
     const bodyInput = document.getElementById("bodyInput");
     const importantInput = document.getElementById("importantInput");
     const authorInput = document.getElementById("authorInput");
     const imageInput = document.getElementById("imageInput");
-    const imagePreviewWrapper = document.getElementById("imagePreviewWrapper");
     const imagePreview = document.getElementById("imagePreview");
+    const submitPostBtn = document.getElementById("submitPost");
 
-    const addButton = document.getElementById("addButton");
-    const clearButton = document.getElementById("clearButton");
-    const listContainer = document.getElementById("listContainer");
-    const tabs = document.querySelectorAll(".tab");
-    const postPanel = document.getElementById("postPanel");
-    const toggleFormButton = document.getElementById("toggleFormButton");
+    const headerColorInput = document.getElementById("headerColorInput");
+    const youtubeUrlInput = document.getElementById("youtubeUrlInput");
+    const saveSettingsBtn = document.getElementById("saveSettings");
+    const videoFrame = document.getElementById("videoFrame");
 
-    // 安全ボード
-    const safetyBoardPanel = document.getElementById("safetyBoardPanel");
-    const safetyInputs = document.querySelectorAll(".safety-input");
-    const safetySizeControls = document.querySelectorAll(".safety-size");
-    const safetyBoldControls = document.querySelectorAll(".safety-bold");
-    const saveSafetyBoardButton = document.getElementById("saveSafetyBoardButton");
-    const safetySaveStatus = document.getElementById("safetySaveStatus");
+    const safety1Content = document.getElementById("safety1Content");
+    const safety2Content = document.getElementById("safety2Content");
 
-    // 社内コンテンツ（動画）
-    const toggleVideoSettingsButton = document.getElementById("toggleVideoSettings");
-    const videoViewArea = document.getElementById("videoViewArea");
-    const videoSettingsArea = document.getElementById("videoSettingsArea");
-    const videoFrameWrapper = document.getElementById("videoFrameWrapper");
-    const videoPlaceholder = document.getElementById("videoPlaceholder");
-    const videoUrlInput = document.getElementById("videoUrlInput");
-    const saveVideoUrlButton = document.getElementById("saveVideoUrlButton");
-    const cancelVideoUrlButton = document.getElementById("cancelVideoUrlButton");
+    // ===== 状態 =====
+    let posts = [];
+    let currentTab = "all";
+    let currentSettings = {
+      headerColor: null,
+      youtubeUrl: ""
+    };
 
-    // ヘッダー系
-    const todayDateEl = document.getElementById("todayDate");
-    const toggleHeaderColorSettingsButton = document.getElementById("toggleHeaderColorSettings");
-    const headerColorSettings = document.getElementById("headerColorSettings");
-    const headerColorPicker = document.getElementById("headerColorPicker");
-    const headerColorPresetButtons = document.querySelectorAll(".header-color-btn");
+    // ===== 日付表示 =====
+    function updateToday() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      todayText.textContent = `本日：${y}/${m}/${day}`;
+    }
+    updateToday();
 
-    // データ
-    let posts = loadPosts();
-    let activeFilter = "all";
-    let currentImageDataUrl = null;
-    let formOpen = false;
-
-    let safetyBoard = loadSafetyBoard();
-
-    // 動画URL
-    let currentVideoUrl = loadVideoUrl();
-
-    // ===== 初期描画 =====
-    applySafetyBoardToInputs();
-    renderList();
-    renderVideoArea(currentVideoUrl);
-    updateTodayDate();
-    initHeaderColor();
-
-    // ===== 掲示板イベント =====
-    addButton.addEventListener("click", handleAdd);
-    clearButton.addEventListener("click", handleClearAll);
-    imageInput.addEventListener("change", handleImageChange);
-
-    toggleFormButton.addEventListener("click", () => {
-      formOpen = !formOpen;
-      if (formOpen) {
-        postPanel.classList.remove("hidden");
-        toggleFormButton.textContent = "投稿フォームを閉じる";
-        postPanel.scrollIntoView({ behavior: "smooth", block: "start" });
-      } else {
-        postPanel.classList.add("hidden");
-        toggleFormButton.textContent = "＋ 新しいお知らせを投稿";
-      }
-    });
-
-    document.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        if (!formOpen) return;
-        handleAdd();
-      }
-    });
-
-    tabs.forEach((tab) => {
-      tab.addEventListener("click", () => {
-        tabs.forEach((t) => t.classList.remove("active"));
-        tab.classList.add("active");
-        activeFilter = tab.dataset.filter;
+    // ===== タブ切り替え =====
+    tabs.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        tabs.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTab = btn.dataset.tab;
+        updateSafetyBackground();
         renderList();
       });
     });
 
-    // ===== 安全ボード：保存ボタン =====
-    saveSafetyBoardButton.addEventListener("click", () => {
-      safetyBoard = {};
-      safetyInputs.forEach((input) => {
-        const key = input.dataset.key;
-        const sizeControl = document.querySelector(`.safety-size[data-key="${key}"]`);
-        const boldControl = document.querySelector(`.safety-bold[data-key="${key}"]`);
-
-        safetyBoard[key] = {
-          text: input.value,
-          size: sizeControl ? sizeControl.value : "13",
-          bold: boldControl ? boldControl.checked : false,
-        };
-      });
-      saveSafetyBoard(safetyBoard);
-      safetySaveStatus.textContent = "保存しました。";
-      setTimeout(() => {
-        safetySaveStatus.textContent = "";
-      }, 2000);
-    });
-
-    // サイズ変更／太字変更のたびに即反映
-    safetySizeControls.forEach((sel) => {
-      sel.addEventListener("change", () => {
-        const key = sel.dataset.key;
-        applySafetyStylesForKey(key);
-      });
-    });
-
-    safetyBoldControls.forEach((chk) => {
-      chk.addEventListener("change", () => {
-        const key = chk.dataset.key;
-        applySafetyStylesForKey(key);
-      });
-    });
-
-    // ===== 社内コンテンツイベント =====
-    toggleVideoSettingsButton.addEventListener("click", () => {
-      const isOpen = !videoSettingsArea.classList.contains("hidden");
-      if (isOpen) {
-        videoSettingsArea.classList.add("hidden");
-        videoViewArea.classList.remove("hidden");
+    function updateSafetyBackground() {
+      if (currentTab === "safety") {
+        boardPanel.style.backgroundColor = "var(--safety-bg)";
       } else {
-        videoUrlInput.value = currentVideoUrl || "";
-        videoSettingsArea.classList.remove("hidden");
-        videoViewArea.classList.add("hidden");
-        videoUrlInput.focus();
+        boardPanel.style.backgroundColor = "var(--panel-bg)";
       }
-    });
-
-    saveVideoUrlButton.addEventListener("click", () => {
-      const url = videoUrlInput.value.trim();
-      if (!url) {
-        currentVideoUrl = "";
-        saveVideoUrl("");
-        renderVideoArea("");
-      } else {
-        currentVideoUrl = url;
-        saveVideoUrl(url);
-        renderVideoArea(url);
-      }
-      videoSettingsArea.classList.add("hidden");
-      videoViewArea.classList.remove("hidden");
-    });
-
-    cancelVideoUrlButton.addEventListener("click", () => {
-      videoSettingsArea.classList.add("hidden");
-      videoViewArea.classList.remove("hidden");
-    });
-
-    // ===== ヘッダー色設定イベント =====
-    toggleHeaderColorSettingsButton.addEventListener("click", () => {
-      headerColorSettings.classList.toggle("hidden");
-    });
-
-    if (headerColorPicker) {
-      headerColorPicker.addEventListener("input", (e) => {
-        const color = e.target.value;
-        setHeaderColor(color);
-      });
+      safetyExtraWrapper.style.display = currentTab === "safety" ? "block" : "none";
     }
 
-    headerColorPresetButtons.forEach((btn) => {
+    // ===== モーダル制御 =====
+    function openModal(which) {
+      if (which === "newPost") {
+        newPostModalBackdrop.style.display = "flex";
+      } else if (which === "settings") {
+        settingsModalBackdrop.style.display = "flex";
+      }
+    }
+    function closeModal(which) {
+      if (which === "newPost") {
+        newPostModalBackdrop.style.display = "none";
+      } else if (which === "settings") {
+        settingsModalBackdrop.style.display = "none";
+      }
+    }
+    openNewPostBtn.addEventListener("click", () => openModal("newPost"));
+    openSettingsBtn.addEventListener("click", () => openModal("settings"));
+    document.querySelectorAll(".modal-close").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const color = btn.dataset.color;
-        setHeaderColor(color);
-        if (headerColorPicker && /^#([0-9a-fA-F]{6})$/.test(color)) {
-          headerColorPicker.value = color;
-        }
+        const target = btn.dataset.close;
+        closeModal(target);
       });
     });
+    newPostModalBackdrop.addEventListener("click", (e) => {
+      if (e.target === newPostModalBackdrop) closeModal("newPost");
+    });
+    settingsModalBackdrop.addEventListener("click", (e) => {
+      if (e.target === settingsModalBackdrop) closeModal("settings");
+    });
 
-    // ===== 画像選択処理 =====
-    function handleImageChange(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) {
-        currentImageDataUrl = null;
-        hideImagePreview();
-        return;
-      }
+    // ===== 画像プレビュー =====
+    imageInput.addEventListener("change", () => {
+      imagePreview.innerHTML = "";
+      const file = imageInput.files[0];
+      if (!file) return;
+      const p = document.createElement("div");
+      p.textContent = `選択されたファイル：${file.name}`;
+      imagePreview.appendChild(p);
 
-      const limitBytes = 1 * 1024 * 1024; // 1MB
-      if (file.size > limitBytes) {
-        alert("画像が大きすぎます。1MB以下の画像を選んでください。");
-        imageInput.value = "";
-        currentImageDataUrl = null;
-        hideImagePreview();
-        return;
-      }
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      imagePreview.appendChild(img);
+    });
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        currentImageDataUrl = reader.result;
-        showImagePreview(currentImageDataUrl);
-      };
-      reader.onerror = () => {
-        console.error(reader.error);
-        alert("画像の読み込みに失敗しました。別のファイルをお試しください。");
-        imageInput.value = "";
-        currentImageDataUrl = null;
-        hideImagePreview();
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function showImagePreview(dataUrl) {
-      if (!dataUrl) return;
-      imagePreview.src = dataUrl;
-      imagePreviewWrapper.classList.remove("hidden");
-    }
-
-    function hideImagePreview() {
-      imagePreview.src = "";
-      imagePreviewWrapper.classList.add("hidden");
-    }
-
-    // ===== 掲示処理 =====
-    function handleAdd() {
-      const title = titleInput.value.trim();
+    // ===== 投稿処理（Firestore + Storage） =====
+    submitPostBtn.addEventListener("click", async () => {
+      const title = titleInput.value.trim() || "（無題）";
       const body = bodyInput.value.trim();
       const dept = deptInput.value;
-      const important = importantInput.value;
+      const important = importantInput.value === "important";
       const author = authorInput.value.trim();
-
       if (!body) {
-        alert("本文を入力してください");
+        alert("本文を入力してください。");
         return;
       }
 
-      const now = new Date();
-      const post = {
-        id: Date.now(),
-        title: title || "（無題）",
-        body,
-        dept,
-        important: important === "important",
-        author,
-        createdAt: now.toISOString(),
-        imageDataUrl: currentImageDataUrl || null,
-      };
+      submitPostBtn.disabled = true;
+      submitPostBtn.textContent = "投稿中…";
 
-      posts.unshift(post);
       try {
-        savePosts(posts);
+        let imageUrl = "";
+        const file = imageInput.files[0];
+        if (file) {
+          const path = `postImages/${Date.now()}_${file.name}`;
+          const storageRef = ref(storage, path);
+          await uploadBytes(storageRef, file);
+          imageUrl = await getDownloadURL(storageRef);
+        }
+
+        await addDoc(collection(db, "posts"), {
+          title,
+          body,
+          dept,
+          important,
+          author,
+          imageUrl,
+          createdAt: serverTimestamp()
+        });
+
+        titleInput.value = "";
+        bodyInput.value = "";
+        authorInput.value = "";
+        importantInput.value = "normal";
+        imageInput.value = "";
+        imagePreview.innerHTML = "";
+        closeModal("newPost");
       } catch (e) {
         console.error(e);
-        alert("保存容量を超えました。古い掲示や画像を削除してください。");
+        alert("投稿中にエラーが発生しました。");
+      } finally {
+        submitPostBtn.disabled = false;
+        submitPostBtn.textContent = "投稿する";
       }
+    });
+
+    // ===== Firestore から投稿一覧をリアルタイム取得 =====
+    const postsQuery = query(
+      collection(db, "posts"),
+      orderBy("createdAt", "desc")
+    );
+    onSnapshot(postsQuery, (snapshot) => {
+      posts = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data()
+      }));
       renderList();
-      clearForm();
-    }
-
-    function handleClearAll() {
-      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？")) {
-        return;
-      }
-      posts = [];
-      savePosts(posts);
-      renderList();
-    }
-
-    function handleDelete(id) {
-      if (!confirm("この掲示を削除しますか？")) return;
-      posts = posts.filter((p) => p.id !== id);
-      savePosts(posts);
-      renderList();
-    }
-
-    function loadPosts() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return [];
-        return JSON.parse(raw);
-      } catch (e) {
-        console.error(e);
-        return [];
-      }
-    }
-
-    function savePosts(data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
+    });
 
     function renderList() {
-      // 背景色＆安全ボードの表示切り替え
-      updateSafetyBackground();
-      updateSafetyBoardVisibility();
-
       listContainer.innerHTML = "";
+      const filtered = posts.filter((p) => {
+        if (currentTab === "all") return true;
+        return p.dept === currentTab;
+      });
 
-      let target = posts;
-      if (activeFilter !== "all") {
-        target = posts.filter((p) => p.dept === activeFilter);
-      }
-
-      if (!target.length) {
+      if (!filtered.length) {
         const p = document.createElement("p");
         p.className = "empty";
-        p.textContent = "このタブに該当する掲示はありません。";
+        p.textContent = "まだ掲示はありません。新規投稿ボタンから追加してください。";
         listContainer.appendChild(p);
         return;
       }
 
-      target.forEach((p) => {
+      filtered.forEach((p) => {
         const item = document.createElement("article");
         item.className = "item";
 
@@ -1263,13 +837,18 @@
 
         const titleSpan = document.createElement("span");
         titleSpan.className = "item-title";
-        titleSpan.textContent = p.title;
+        titleSpan.textContent = p.title || "（無題）";
         left.appendChild(titleSpan);
 
         const meta = document.createElement("div");
         meta.className = "item-meta";
+        const createdAt = p.createdAt?.toDate
+          ? p.createdAt.toDate()
+          : p.createdAt
+          ? new Date(p.createdAt)
+          : null;
         meta.innerHTML =
-          formatDateTime(p.createdAt) +
+          (createdAt ? formatDateTime(createdAt) : "") +
           (p.author ? "<br>" + escapeHtml(p.author) : "");
 
         header.appendChild(left);
@@ -1277,39 +856,45 @@
 
         const bodyDiv = document.createElement("div");
         bodyDiv.className = "item-body";
-        bodyDiv.textContent = p.body;
-
-        if (p.imageDataUrl) {
-          const img = document.createElement("img");
-          img.className = "item-image";
-          img.src = p.imageDataUrl;
-          img.alt = "添付画像";
-          bodyDiv.appendChild(img);
-        }
+        bodyDiv.textContent = p.body || "";
 
         const actions = document.createElement("div");
         actions.className = "item-actions";
+
         const delBtn = document.createElement("button");
         delBtn.className = "secondary danger";
         delBtn.textContent = "削除";
-        delBtn.addEventListener("click", () => handleDelete(p.id));
+        delBtn.addEventListener("click", () => handleDeletePost(p.id));
         actions.appendChild(delBtn);
 
         item.appendChild(header);
         item.appendChild(bodyDiv);
-        item.appendChild(actions);
 
+        if (p.imageUrl) {
+          const imgWrap = document.createElement("div");
+          imgWrap.className = "item-image";
+          const img = document.createElement("img");
+          img.src = p.imageUrl;
+          img.alt = "添付画像";
+          imgWrap.appendChild(img);
+          item.appendChild(imgWrap);
+        }
+
+        item.appendChild(actions);
         listContainer.appendChild(item);
       });
     }
 
-    function clearForm() {
-      bodyInput.value = "";
-      importantInput.value = "normal";
-      imageInput.value = "";
-      currentImageDataUrl = null;
-      hideImagePreview();
-      bodyInput.focus();
+    async function handleDeletePost(id) {
+      if (!confirm("この掲示を削除しますか？")) return;
+      try {
+        await setDoc(doc(db, "posts", id), { deleted: true }, { merge: true });
+        // 実際に消すなら deleteDoc を使う。ただしここでは「削除フラグ」にしてもよい。
+        // import { deleteDoc } ... して deleteDoc(doc(db,"posts",id)) に変更可。
+      } catch (e) {
+        console.error(e);
+        alert("削除時にエラーが発生しました。");
+      }
     }
 
     function getDeptLabel(dept) {
@@ -1326,7 +911,6 @@
           return "その他";
       }
     }
-
     function getDeptBadgeClass(dept) {
       switch (dept) {
         case "management":
@@ -1341,219 +925,15 @@
           return "";
       }
     }
-
-    function formatDateTime(iso) {
-      const d = new Date(iso);
-      if (isNaN(d.getTime())) return "";
+    function formatDateTime(d) {
+      if (!d || isNaN(d.getTime())) return "";
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
-      const hh = String(d.getHours() + 100).slice(-2);
-      const mm = String(d.getMinutes() + 100).slice(-2).slice(-2);
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
       return `${y}/${m}/${day} ${hh}:${mm}`;
     }
-
-    // 安全タブのとき背景色 ON/OFF
-    function updateSafetyBackground() {
-      if (activeFilter === "safety") {
-        document.body.classList.add("safety-mode");
-      } else {
-        document.body.classList.remove("safety-mode");
-      }
-    }
-
-    // 安全ボードの表示切り替え
-    function updateSafetyBoardVisibility() {
-      if (activeFilter === "safety") {
-        safetyBoardPanel.classList.remove("hidden");
-      } else {
-        safetyBoardPanel.classList.add("hidden");
-      }
-    }
-
-    // ===== 社内コンテンツ：動画URL保存・表示 =====
-    function loadVideoUrl() {
-      try {
-        return localStorage.getItem(VIDEO_STORAGE_KEY) || "";
-      } catch (e) {
-        console.error(e);
-        return "";
-      }
-    }
-
-    function saveVideoUrl(url) {
-      try {
-        localStorage.setItem(VIDEO_STORAGE_KEY, url || "");
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function renderVideoArea(url) {
-      videoFrameWrapper.innerHTML = "";
-
-      if (!url) {
-        videoFrameWrapper.classList.add("hidden");
-        videoPlaceholder.classList.remove("hidden");
-        return;
-      }
-
-      const embedUrl = toYouTubeEmbedUrl(url);
-      if (embedUrl) {
-        const id = getYouTubeId(url);
-        const iframe = document.createElement("iframe");
-        iframe.src =
-          embedUrl + "?autoplay=1&mute=1&loop=1" + (id ? "&playlist=" + id : "");
-        iframe.allow =
-          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-        iframe.allowFullscreen = true;
-        videoFrameWrapper.appendChild(iframe);
-        videoFrameWrapper.classList.remove("hidden");
-        videoPlaceholder.classList.add("hidden");
-      } else {
-        videoFrameWrapper.classList.add("hidden");
-        videoPlaceholder.classList.remove("hidden");
-      }
-    }
-
-    function getYouTubeId(url) {
-      try {
-        const u = new URL(url);
-        if (u.hostname === "youtu.be") {
-          return u.pathname.replace("/", "");
-        }
-        if (u.hostname.includes("youtube.com")) {
-          return u.searchParams.get("v");
-        }
-        return "";
-      } catch (e) {
-        return "";
-      }
-    }
-
-    function toYouTubeEmbedUrl(url) {
-      const id = getYouTubeId(url);
-      if (!id) return "";
-      return "https://www.youtube.com/embed/" + id;
-    }
-
-    // ===== 安全ボード保存／読み込み =====
-    function loadSafetyBoard() {
-      try {
-        const raw = localStorage.getItem(SAFETY_BOARD_KEY);
-        if (!raw) return {};
-        return JSON.parse(raw);
-      } catch (e) {
-        console.error(e);
-        return {};
-      }
-    }
-
-    function saveSafetyBoard(data) {
-      try {
-        localStorage.setItem(SAFETY_BOARD_KEY, JSON.stringify(data));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function applySafetyBoardToInputs() {
-      safetyInputs.forEach((input) => {
-        const key = input.dataset.key;
-        const entry = safetyBoard[key];
-
-        let text = "";
-        let size = "13";
-        let bold = false;
-
-        if (typeof entry === "string") {
-          text = entry;
-        } else if (entry && typeof entry === "object") {
-          text = entry.text || "";
-          size = entry.size || "13";
-          bold = !!entry.bold;
-        }
-
-        input.value = text;
-
-        const sizeControl = document.querySelector(`.safety-size[data-key="${key}"]`);
-        const boldControl = document.querySelector(`.safety-bold[data-key="${key}"]`);
-
-        if (sizeControl) sizeControl.value = size;
-        if (boldControl) boldControl.checked = bold;
-
-        applySafetyStylesForKey(key);
-      });
-    }
-
-    function applySafetyStylesForKey(key) {
-      const input = document.querySelector(`.safety-input[data-key="${key}"]`);
-      if (!input) return;
-      const sizeControl = document.querySelector(`.safety-size[data-key="${key}"]`);
-      const boldControl = document.querySelector(`.safety-bold[data-key="${key}"]`);
-
-      const size = sizeControl ? sizeControl.value : "13";
-      const bold = boldControl ? boldControl.checked : false;
-
-      input.style.fontSize = size + "px";
-      input.style.fontWeight = bold ? "700" : "400";
-    }
-
-    // ===== 今日の日付表示 =====
-    function updateTodayDate() {
-      if (!todayDateEl) return;
-      const d = new Date();
-      const youbi = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
-      const text = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${youbi}）`;
-      todayDateEl.textContent = "本日：" + text;
-    }
-
-    // ===== ヘッダー色 =====
-    function initHeaderColor() {
-      let color = "#ffffff";
-      try {
-        const saved = localStorage.getItem(HEADER_COLOR_KEY);
-        if (saved) color = saved;
-      } catch (e) {
-        console.error(e);
-      }
-      setHeaderColor(color);
-      if (headerColorPicker && /^#([0-9a-fA-F]{6})$/.test(color)) {
-        headerColorPicker.value = color;
-      }
-    }
-
-    function setHeaderColor(color) {
-      if (!color || typeof color !== "string") return;
-      document.documentElement.style.setProperty("--header-bg", color);
-
-      // 明るさから文字色を自動決定
-      const isDark = isDarkColor(color);
-      const mainColor = isDark ? "#f9fafb" : "#111827";
-      const subColor = isDark ? "#e5e7eb" : "#6b7280";
-
-      document.documentElement.style.setProperty("--header-text-main", mainColor);
-      document.documentElement.style.setProperty("--header-text-sub", subColor);
-
-      try {
-        localStorage.setItem(HEADER_COLOR_KEY, color);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function isDarkColor(hex) {
-      const m = /^#?([0-9a-fA-F]{6})$/.exec(hex);
-      if (!m) return false;
-      const int = parseInt(m[1], 16);
-      const r = (int >> 16) & 255;
-      const g = (int >> 8) & 255;
-      const b = int & 255;
-      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      return brightness < 140;
-    }
-
-    // HTMLエスケープ
     function escapeHtml(str) {
       if (!str) return "";
       return String(str)
@@ -1563,6 +943,183 @@
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
     }
+
+    // ===== 設定（ヘッダー色・YouTube URL） =====
+    const settingsDocRef = doc(db, "config", "general");
+
+    async function loadSettings() {
+      const snap = await getDoc(settingsDocRef);
+      if (!snap.exists()) return;
+      const data = snap.data();
+      currentSettings.headerColor = data.headerColor || null;
+      currentSettings.youtubeUrl = data.youtubeUrl || "";
+      applySettingsToUI();
+    }
+
+    function applySettingsToUI() {
+      if (currentSettings.headerColor) {
+        mainHeader.style.backgroundColor = currentSettings.headerColor;
+      }
+      headerColorInput.value =
+        currentSettings.headerColor || "#1f2933";
+
+      youtubeUrlInput.value = currentSettings.youtubeUrl || "";
+      updateVideoFrame(currentSettings.youtubeUrl || "");
+    }
+
+    function toEmbedUrl(url) {
+      if (!url) return "";
+      try {
+        // watch?v=xxxx or youtu.be/xxxx を embed に変換
+        if (url.includes("watch?v=")) {
+          const u = new URL(url);
+          const v = u.searchParams.get("v");
+          if (v) return `https://www.youtube.com/embed/${v}`;
+        }
+        if (url.includes("youtu.be/")) {
+          const parts = url.split("youtu.be/");
+          const idPart = parts[1].split(/[?&]/)[0];
+          if (idPart) return `https://www.youtube.com/embed/${idPart}`;
+        }
+        // それ以外はそのまま
+        return url;
+      } catch {
+        return url;
+      }
+    }
+
+    function updateVideoFrame(url) {
+      videoFrame.innerHTML = "";
+      if (!url) {
+        videoFrame.textContent =
+          "設定画面から YouTube の共有URL を登録すると、ここに動画が表示されます。";
+        return;
+      }
+      const embed = toEmbedUrl(url);
+      const iframe = document.createElement("iframe");
+      iframe.src = embed;
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+      iframe.allowFullscreen = true;
+      videoFrame.appendChild(iframe);
+    }
+
+    saveSettingsBtn.addEventListener("click", async () => {
+      const headerColor = headerColorInput.value || "#1f2933";
+      const youtubeUrl = youtubeUrlInput.value.trim();
+
+      try {
+        await setDoc(
+          settingsDocRef,
+          { headerColor, youtubeUrl },
+          { merge: true }
+        );
+        currentSettings.headerColor = headerColor;
+        currentSettings.youtubeUrl = youtubeUrl;
+        applySettingsToUI();
+        alert("設定を保存しました。");
+        closeModal("settings");
+      } catch (e) {
+        console.error(e);
+        alert("設定の保存中にエラーが発生しました。");
+      }
+    });
+
+    // ===== 安全掲示板カードの保存 =====
+    const safetyDocRef = doc(db, "config", "safety");
+
+    async function loadSafetyCards() {
+      const snap = await getDoc(safetyDocRef);
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (data.safety1Html) {
+        safety1Content.innerHTML = data.safety1Html;
+      }
+      if (data.safety2Html) {
+        safety2Content.innerHTML = data.safety2Html;
+      }
+      if (data.safety1Class) {
+        safety1Content.classList.remove("safety-small","safety-medium","safety-large");
+        safety1Content.classList.add(data.safety1Class);
+      }
+      if (data.safety2Class) {
+        safety2Content.classList.remove("safety-small","safety-medium","safety-large");
+        safety2Content.classList.add(data.safety2Class);
+      }
+      if (data.safety1Bold) {
+        safety1Content.style.fontWeight = "bold";
+      }
+      if (data.safety2Bold) {
+        safety2Content.style.fontWeight = "bold";
+      }
+    }
+
+    function handleSafetyToolbarClick(e) {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+      const targetId = btn.dataset.target;
+      const size = btn.dataset.size;
+      const style = btn.dataset.style;
+      const action = btn.dataset.action;
+      const el =
+        targetId === "safety1" ? safety1Content : safety2Content;
+
+      if (!el) return;
+
+      if (size) {
+        el.classList.remove("safety-small","safety-medium","safety-large");
+        if (size === "small") el.classList.add("safety-small");
+        if (size === "medium") el.classList.add("safety-medium");
+        if (size === "large") el.classList.add("safety-large");
+      }
+      if (style === "bold") {
+        el.style.fontWeight = el.style.fontWeight === "bold" ? "normal" : "bold";
+      }
+      if (action === "save") {
+        saveSafetyCards();
+      }
+    }
+
+    async function saveSafetyCards() {
+      try {
+        const data = {
+          safety1Html: safety1Content.innerHTML,
+          safety2Html: safety2Content.innerHTML,
+          safety1Class:
+            safety1Content.classList.contains("safety-large")
+              ? "safety-large"
+              : safety1Content.classList.contains("safety-small")
+              ? "safety-small"
+              : "safety-medium",
+          safety2Class:
+            safety2Content.classList.contains("safety-large")
+              ? "safety-large"
+              : safety2Content.classList.contains("safety-small")
+              ? "safety-small"
+              : "safety-medium",
+          safety1Bold: safety1Content.style.fontWeight === "bold",
+          safety2Bold: safety2Content.style.fontWeight === "bold"
+        };
+        await setDoc(safetyDocRef, data, { merge: true });
+        alert("安全掲示板カードを保存しました。");
+      } catch (e) {
+        console.error(e);
+        alert("安全掲示板カード保存中にエラーが発生しました。");
+      }
+    }
+
+    document
+      .querySelectorAll(".safety-toolbar")
+      .forEach((toolbar) => {
+        toolbar.addEventListener("click", handleSafetyToolbarClick);
+      });
+
+    // ===== 初期ロード =====
+    (async () => {
+      await loadSettings();
+      await loadSafetyCards();
+      updateSafetyBackground();
+    })();
   </script>
 </body>
 </html>
