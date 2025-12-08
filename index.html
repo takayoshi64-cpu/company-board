@@ -709,18 +709,20 @@
     }
     openNewPostBtn.addEventListener("click", () => openModal("newPost"));
     openSettingsBtn.addEventListener("click", () => openModal("settings"));
-    document.querySelectorAll(".modal-close").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.close;
-        closeModal(target);
-      });
-    });
+    
     newPostModalBackdrop.addEventListener("click", (e) => {
       if (e.target === newPostModalBackdrop) closeModal("newPost");
     });
     settingsModalBackdrop.addEventListener("click", (e) => {
       if (e.target === settingsModalBackdrop) closeModal("settings");
     });
+// すべての data-close ボタンでモーダルを閉じる
+document.querySelectorAll("[data-close]").forEach((el) => {
+  el.addEventListener("click", () => {
+    const target = el.dataset.close;
+    if (target) closeModal(target);
+  });
+});
 
     // ===== 画像プレビュー =====
     imageInput.addEventListener("change", () => {
