@@ -588,18 +588,19 @@
   <script type="module">
     // ===== Firebase SDK 読み込み =====
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      query,
-      orderBy,
-      onSnapshot,
-      serverTimestamp,
-      doc,
-      setDoc,
-      getDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  serverTimestamp,
+  doc,
+  setDoc,
+  getDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import {
       getStorage,
       ref,
@@ -885,17 +886,15 @@
       });
     }
 
-    async function handleDeletePost(id) {
-      if (!confirm("この掲示を削除しますか？")) return;
-      try {
-        await setDoc(doc(db, "posts", id), { deleted: true }, { merge: true });
-        // 実際に消すなら deleteDoc を使う。ただしここでは「削除フラグ」にしてもよい。
-        // import { deleteDoc } ... して deleteDoc(doc(db,"posts",id)) に変更可。
-      } catch (e) {
-        console.error(e);
-        alert("削除時にエラーが発生しました。");
-      }
-    }
+ async function handleDeletePost(id) {
+  if (!confirm("この掲示を削除しますか？")) return;
+  try {
+    await deleteDoc(doc(db, "posts", id)); // ← Firestore から完全に削除
+  } catch (e) {
+    console.error(e);
+    alert("削除時にエラーが発生しました。");
+  }
+}
 
     function getDeptLabel(dept) {
       switch (dept) {
