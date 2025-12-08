@@ -36,17 +36,25 @@
     /* ===== ヘッダー ===== */
     header {
       margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
     }
 
-    header h1 {
+    .header-main h1 {
       margin: 0;
       font-size: 24px;
     }
 
-    header p {
+    .header-main p {
       margin: 4px 0 0;
       font-size: 12px;
       color: var(--text-sub);
+    }
+
+    .header-actions {
+      white-space: nowrap;
     }
 
     /* ===== タブ ===== */
@@ -321,8 +329,17 @@
         margin: 8px auto 16px;
       }
 
-      header h1 {
+      .header-main h1 {
         font-size: 20px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-actions {
+        align-self: flex-start;
       }
     }
   </style>
@@ -330,8 +347,13 @@
 <body>
   <div class="page">
     <header>
-      <h1>情報発信掲示板システム</h1>
-      <p>管理部・製造部などの社内連絡をまとめて表示します（このPC保存版・写真添付対応）</p>
+      <div class="header-main">
+        <h1>情報発信掲示板システム</h1>
+        <p>管理部・製造部などの社内連絡をまとめて表示します（このPC保存版・写真添付対応）</p>
+      </div>
+      <div class="header-actions">
+        <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
+      </div>
     </header>
 
     <!-- タブ（絞り込み） -->
@@ -343,8 +365,8 @@
       <button class="tab" data-filter="safety">安全掲示板</button>
     </nav>
 
-    <!-- 入力パネル -->
-    <section class="panel">
+    <!-- 入力パネル（デフォルト非表示） -->
+    <section id="postPanel" class="panel hidden">
       <h2>新しいお知らせを投稿</h2>
 
       <div class="form-row">
@@ -440,10 +462,14 @@
     const listContainer = document.getElementById("listContainer");
     const tabs = document.querySelectorAll(".tab");
 
+    const postPanel = document.getElementById("postPanel");
+    const toggleFormButton = document.getElementById("toggleFormButton");
+
     // データ
     let posts = loadPosts();
     let activeFilter = "all"; // タブの状態
     let currentImageDataUrl = null; // 今入力中の画像
+    let formOpen = false;
 
     renderList();
 
@@ -453,9 +479,24 @@
 
     imageInput.addEventListener("change", handleImageChange);
 
+    // フォーム開閉ボタン
+    toggleFormButton.addEventListener("click", () => {
+      formOpen = !formOpen;
+      if (formOpen) {
+        postPanel.classList.remove("hidden");
+        toggleFormButton.textContent = "投稿フォームを閉じる";
+        // フォームまでスクロール
+        postPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        postPanel.classList.add("hidden");
+        toggleFormButton.textContent = "＋ 新しいお知らせを投稿";
+      }
+    });
+
     // Ctrl+Enter(or Cmd+Enter) で投稿
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        if (!formOpen) return; // フォーム閉じてるときは無視
         handleAdd();
       }
     });
@@ -479,7 +520,6 @@
         return;
       }
 
-      // サイズチェック（約1MBまで推奨）
       const limitBytes = 1 * 1024 * 1024; // 1MB
       if (file.size > limitBytes) {
         alert("画像が大きすぎます。1MB以下の画像を選んでください。");
@@ -585,7 +625,6 @@
     function renderList() {
       listContainer.innerHTML = "";
 
-      // フィルタリング
       let target = posts;
       if (activeFilter !== "all") {
         target = posts.filter((p) => p.dept === activeFilter);
@@ -608,13 +647,11 @@
 
         const left = document.createElement("div");
 
-        // 部署バッジ
         const deptBadge = document.createElement("span");
         deptBadge.className = "badge " + getDeptBadgeClass(p.dept);
         deptBadge.textContent = getDeptLabel(p.dept);
         left.appendChild(deptBadge);
 
-        // 重要バッジ
         if (p.important) {
           const impBadge = document.createElement("span");
           impBadge.className = "badge badge-important";
@@ -640,7 +677,6 @@
         bodyDiv.className = "item-body";
         bodyDiv.textContent = p.body;
 
-        // 画像があれば表示
         if (p.imageDataUrl) {
           const img = document.createElement("img");
           img.className = "item-image";
