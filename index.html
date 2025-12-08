@@ -23,4 +23,707 @@
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      b
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 16px auto 32px;
+      padding: 16px;
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      margin-bottom: 12px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    /* ===== タブ ===== */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 8px 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      border: none;
+      background: transparent;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      border-radius: 6px 6px 0 0;
+      color: var(--text-sub);
+    }
+
+    .tab.active {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-bottom-color: var(--bg-color);
+    }
+
+    /* ===== パネル共通 ===== */
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      margin-bottom: 12px;
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    /* ===== 入力フォーム ===== */
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 8px;
+    }
+
+    .form-row label {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 2px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background-color: #f9fafb;
+      color: var(--text-main);
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent-soft);
+      background-color: #ffffff;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    input[type="file"] {
+      font-size: 12px;
+    }
+
+    .help-text {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background-color: var(--accent);
+      color: #ffffff;
+      transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background-color: #ffffff;
+      color: var(--accent);
+    }
+
+    button.danger {
+      border-color: #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+
+    button.danger:hover {
+      background-color: #fecaca;
+    }
+
+    /* 写真プレビュー */
+    .image-preview-wrapper {
+      margin-top: 4px;
+    }
+
+    .image-preview-label {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 2px;
+    }
+
+    .image-preview {
+      max-width: 240px;
+      max-height: 160px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+      display: block;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* ===== 掲示一覧 ===== */
+    .list-container {
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .item {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 8px 0;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .item-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .item-meta {
+      font-size: 11px;
+      color: var(--text-sub);
+      text-align: right;
+    }
+
+    .item-body {
+      margin-top: 4px;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    /* 掲示内の画像 */
+    .item-image {
+      margin-top: 6px;
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 8px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* バッジ */
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      margin-right: 4px;
+    }
+
+    .badge-dept-management {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .badge-dept-factory {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .badge-dept-news {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .badge-dept-safety {
+      background-color: #fef9c3;
+      color: #92400e;
+    }
+
+    .badge-important {
+      border: 1px solid #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+
+    .item-actions {
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .item-actions button {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .empty {
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+
+    footer {
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    @media (max-width: 640px) {
+      .page {
+        padding: 8px;
+        margin: 8px auto 16px;
+      }
+
+      header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>情報発信掲示板システム</h1>
+      <p>管理部・製造部などの社内連絡をまとめて表示します（このPC保存版・写真添付対応）</p>
+    </header>
+
+    <!-- タブ（絞り込み） -->
+    <nav class="tabs">
+      <button class="tab active" data-filter="all">全体情報</button>
+      <button class="tab" data-filter="management">管理部</button>
+      <button class="tab" data-filter="factory">製造部</button>
+      <button class="tab" data-filter="news">会社ニュース</button>
+      <button class="tab" data-filter="safety">安全掲示板</button>
+    </nav>
+
+    <!-- 入力パネル -->
+    <section class="panel">
+      <h2>新しいお知らせを投稿</h2>
+
+      <div class="form-row">
+        <label for="titleInput">タイトル</label>
+        <input
+          id="titleInput"
+          type="text"
+          placeholder="例：明日の朝礼について"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="deptInput">部署</label>
+        <select id="deptInput">
+          <option value="management">管理部からのお知らせ</option>
+          <option value="factory">製造部からのお知らせ</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="bodyInput">本文</label>
+        <textarea
+          id="bodyInput"
+          placeholder="掲示内容を入力してください"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <label for="importantInput">重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="authorInput">投稿者（任意）</label>
+        <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
+      </div>
+
+      <div class="form-row">
+        <label for="imageInput">写真を添付（任意）</label>
+        <input id="imageInput" type="file" accept="image/*" />
+        <div class="help-text">
+          ※ 1枚のみ。500KB〜1MB程度まで推奨（大きすぎると保存できない場合があります）。
+        </div>
+        <div id="imagePreviewWrapper" class="image-preview-wrapper hidden">
+          <div class="image-preview-label">プレビュー</div>
+          <img id="imagePreview" class="image-preview" alt="画像プレビュー" />
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="addButton">投稿する</button>
+        <button id="clearButton" class="danger">
+          このブラウザの掲示をすべて削除
+        </button>
+      </div>
+    </section>
+
+    <!-- 一覧パネル -->
+    <section class="panel">
+      <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
+      <div id="listContainer" class="list-container">
+        <!-- JSで埋まる -->
+      </div>
+    </section>
+
+    <footer>
+      ※ 掲示内容と写真は、このPCのブラウザ（localStorage）内に保存されます。<br />
+      ※ 写真を大量に保存すると容量制限に達する場合があります。
+    </footer>
+  </div>
+
+  <script>
+    // ===== 設定 =====
+    const STORAGE_KEY = "public_display_board_v1";
+
+    // DOM参照
+    const titleInput = document.getElementById("titleInput");
+    const deptInput = document.getElementById("deptInput");
+    const bodyInput = document.getElementById("bodyInput");
+    const importantInput = document.getElementById("importantInput");
+    const authorInput = document.getElementById("authorInput");
+    const imageInput = document.getElementById("imageInput");
+    const imagePreviewWrapper = document.getElementById("imagePreviewWrapper");
+    const imagePreview = document.getElementById("imagePreview");
+
+    const addButton = document.getElementById("addButton");
+    const clearButton = document.getElementById("clearButton");
+    const listContainer = document.getElementById("listContainer");
+    const tabs = document.querySelectorAll(".tab");
+
+    // データ
+    let posts = loadPosts();
+    let activeFilter = "all"; // タブの状態
+    let currentImageDataUrl = null; // 今入力中の画像
+
+    renderList();
+
+    // ===== イベント =====
+    addButton.addEventListener("click", handleAdd);
+    clearButton.addEventListener("click", handleClearAll);
+
+    imageInput.addEventListener("change", handleImageChange);
+
+    // Ctrl+Enter(or Cmd+Enter) で投稿
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+        handleAdd();
+      }
+    });
+
+    // タブクリックで絞り込み
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        activeFilter = tab.dataset.filter;
+        renderList();
+      });
+    });
+
+    // ===== 画像選択処理 =====
+    function handleImageChange(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        currentImageDataUrl = null;
+        hideImagePreview();
+        return;
+      }
+
+      // サイズチェック（約1MBまで推奨）
+      const limitBytes = 1 * 1024 * 1024; // 1MB
+      if (file.size > limitBytes) {
+        alert("画像が大きすぎます。1MB以下の画像を選んでください。");
+        imageInput.value = "";
+        currentImageDataUrl = null;
+        hideImagePreview();
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        currentImageDataUrl = reader.result;
+        showImagePreview(currentImageDataUrl);
+      };
+      reader.onerror = () => {
+        console.error(reader.error);
+        alert("画像の読み込みに失敗しました。別のファイルをお試しください。");
+        imageInput.value = "";
+        currentImageDataUrl = null;
+        hideImagePreview();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function showImagePreview(dataUrl) {
+      if (!dataUrl) return;
+      imagePreview.src = dataUrl;
+      imagePreviewWrapper.classList.remove("hidden");
+    }
+
+    function hideImagePreview() {
+      imagePreview.src = "";
+      imagePreviewWrapper.classList.add("hidden");
+    }
+
+    // ===== 関数群 =====
+    function handleAdd() {
+      const title = titleInput.value.trim();
+      const body = bodyInput.value.trim();
+      const dept = deptInput.value;
+      const important = importantInput.value;
+      const author = authorInput.value.trim();
+
+      if (!body) {
+        alert("本文を入力してください");
+        return;
+      }
+
+      const now = new Date();
+      const post = {
+        id: Date.now(),
+        title: title || "（無題）",
+        body,
+        dept,
+        important: important === "important",
+        author,
+        createdAt: now.toISOString(),
+        imageDataUrl: currentImageDataUrl || null,
+      };
+
+      posts.unshift(post);
+      try {
+        savePosts(posts);
+      } catch (e) {
+        console.error(e);
+        alert("保存容量を超えました。古い掲示や画像を削除してください。");
+      }
+      renderList();
+      clearForm();
+    }
+
+    function handleClearAll() {
+      if (!confirm("このブラウザに保存されている掲示をすべて削除しますか？")) {
+        return;
+      }
+      posts = [];
+      savePosts(posts);
+      renderList();
+    }
+
+    function handleDelete(id) {
+      if (!confirm("この掲示を削除しますか？")) return;
+      posts = posts.filter((p) => p.id !== id);
+      savePosts(posts);
+      renderList();
+    }
+
+    function loadPosts() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+        return [];
+      }
+    }
+
+    function savePosts(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+
+    function renderList() {
+      listContainer.innerHTML = "";
+
+      // フィルタリング
+      let target = posts;
+      if (activeFilter !== "all") {
+        target = posts.filter((p) => p.dept === activeFilter);
+      }
+
+      if (!target.length) {
+        const p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "このタブに該当する掲示はありません。";
+        listContainer.appendChild(p);
+        return;
+      }
+
+      target.forEach((p) => {
+        const item = document.createElement("article");
+        item.className = "item";
+
+        const header = document.createElement("div");
+        header.className = "item-header";
+
+        const left = document.createElement("div");
+
+        // 部署バッジ
+        const deptBadge = document.createElement("span");
+        deptBadge.className = "badge " + getDeptBadgeClass(p.dept);
+        deptBadge.textContent = getDeptLabel(p.dept);
+        left.appendChild(deptBadge);
+
+        // 重要バッジ
+        if (p.important) {
+          const impBadge = document.createElement("span");
+          impBadge.className = "badge badge-important";
+          impBadge.textContent = "重要";
+          left.appendChild(impBadge);
+        }
+
+        const titleSpan = document.createElement("span");
+        titleSpan.className = "item-title";
+        titleSpan.textContent = p.title;
+        left.appendChild(titleSpan);
+
+        const meta = document.createElement("div");
+        meta.className = "item-meta";
+        meta.innerHTML =
+          formatDateTime(p.createdAt) +
+          (p.author ? "<br>" + escapeHtml(p.author) : "");
+
+        header.appendChild(left);
+        header.appendChild(meta);
+
+        const bodyDiv = document.createElement("div");
+        bodyDiv.className = "item-body";
+        bodyDiv.textContent = p.body;
+
+        // 画像があれば表示
+        if (p.imageDataUrl) {
+          const img = document.createElement("img");
+          img.className = "item-image";
+          img.src = p.imageDataUrl;
+          img.alt = "添付画像";
+          bodyDiv.appendChild(img);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "item-actions";
+        const delBtn = document.createElement("button");
+        delBtn.className = "secondary danger";
+        delBtn.textContent = "削除";
+        delBtn.addEventListener("click", () => handleDelete(p.id));
+        actions.appendChild(delBtn);
+
+        item.appendChild(header);
+        item.appendChild(bodyDiv);
+        item.appendChild(actions);
+
+        listContainer.appendChild(item);
+      });
+    }
+
+    function clearForm() {
+      bodyInput.value = "";
+      importantInput.value = "normal";
+      imageInput.value = "";
+      currentImageDataUrl = null;
+      hideImagePreview();
+      bodyInput.focus();
+    }
+
+    function getDeptLabel(dept) {
+      switch (dept) {
+        case "management":
+          return "管理部";
+        case "factory":
+          return "製造部";
+        case "news":
+          return "会社ニュース";
+        case "safety":
+          return "安全掲示板";
+        default:
+          return "その他";
+      }
+    }
+
+    function getDeptBadgeClass(dept) {
+      switch (dept) {
+        case "management":
+          return "badge-dept-management";
+        case "factory":
+          return "badge-dept-factory";
+        case "news":
+          return "badge-dept-news";
+        case "safety":
+          return "badge-dept-safety";
+        default:
+          return "";
+      }
+    }
+
+    function formatDateTime(iso) {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return "";
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const hh = String(d.getHours()).padStart(2, "0");
+      const mm = String(d.getMinutes()).padStart(2, "0");
+      return `${y}/${m}/${day} ${hh}:${mm}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+  </script>
+</body>
+</html>
