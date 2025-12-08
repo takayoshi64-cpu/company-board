@@ -127,6 +127,49 @@
       padding-bottom: 4px;
     }
 
+    /* 共通ボタン */
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background-color: var(--accent);
+      color: #ffffff;
+      transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background-color: #ffffff;
+      color: var(--accent);
+    }
+
+    button.danger {
+      border-color: #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+
+    button.danger:hover {
+      background-color: #fecaca;
+    }
+
+    .small-button {
+      font-size: 12px;
+      padding: 4px 10px;
+    }
+
     /* ===== 入力フォーム ===== */
     .form-row {
       display: flex;
@@ -181,43 +224,6 @@
       flex-wrap: wrap;
       gap: 8px;
       margin-top: 4px;
-    }
-
-    button {
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      background-color: var(--accent);
-      color: #ffffff;
-      transition: background 0.15s, transform 0.05s, box-shadow 0.15s;
-    }
-
-    button:hover {
-      background-color: #1d4ed8;
-      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
-
-    button.secondary {
-      background-color: #ffffff;
-      color: var(--accent);
-    }
-
-    button.danger {
-      border-color: #b91c1c;
-      color: #b91c1c;
-      background-color: #fee2e2;
-    }
-
-    button.danger:hover {
-      background-color: #fecaca;
     }
 
     /* 写真プレビュー */
@@ -351,6 +357,21 @@
     }
 
     /* ===== 右側：YouTubeコンテンツ ===== */
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .panel-header h2 {
+      border-bottom: none;
+      padding-bottom: 0;
+      margin: 0;
+      font-size: 16px;
+    }
+
     .video-wrapper {
       position: relative;
       width: 100%;
@@ -373,6 +394,27 @@
       font-size: 11px;
       color: var(--text-sub);
       margin-top: 4px;
+    }
+
+    .settings-panel {
+      border-radius: 6px;
+      border: 1px dashed var(--border);
+      padding: 8px;
+      margin-bottom: 8px;
+      background-color: #f9fafb;
+    }
+
+    .settings-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .settings-actions {
+      margin-top: 6px;
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
     }
 
     @media (max-width: 640px) {
@@ -501,19 +543,49 @@
       <!-- ===== 右：YouTubeコンテンツ ===== -->
       <aside class="side-column">
         <section class="panel">
-          <h2>社内コンテンツ（TAKAチャンネル）</h2>
-          <div class="video-wrapper">
-            <!-- ★ここで VIDEO_ID_HERE を差し替える★ -->
+          <div class="panel-header">
+            <h2>社内コンテンツ（TAKAチャンネル）</h2>
+            <button id="videoSettingsButton" class="secondary small-button">動画設定</button>
+          </div>
+
+          <!-- 動画設定パネル（共有URL入力） -->
+          <div id="videoSettingsPanel" class="settings-panel hidden">
+            <div class="settings-row">
+              <label for="videoUrlInput" style="font-size:12px; color:var(--text-sub);">
+                YouTube の<strong>共有URL</strong>を貼り付けてください
+              </label>
+              <input
+                id="videoUrlInput"
+                type="text"
+                placeholder="例）https://youtu.be/XXXXXXXXXXX や https://www.youtube.com/watch?v=XXXXXXXXXXX"
+              />
+              <div class="help-text">
+                ※ 動画1本のURLのみ対応（チャンネルのURLは不可）。<br />
+                ※ 貼り替えて「保存」すると、右の動画欄がすぐに切り替わります。
+              </div>
+            </div>
+            <div class="settings-actions">
+              <button id="videoCancelButton" class="secondary small-button">閉じる</button>
+              <button id="videoSaveButton" class="small-button">保存</button>
+            </div>
+          </div>
+
+          <!-- 動画 or 未設定メッセージ -->
+          <div id="videoWrapper" class="video-wrapper hidden">
             <iframe
-              src="https://www.youtube.com/embed/VIDEO_ID_HERE?autoplay=1&mute=1&loop=1&playlist=VIDEO_ID_HERE&rel=0"
+              id="videoFrame"
+              src=""
               title="TAKAチャンネル"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
             ></iframe>
           </div>
+          <p id="noVideoMessage" class="content-note">
+            まだ動画が設定されていません。右上の「動画設定」から、流したい動画の共有URLを登録してください。
+          </p>
           <p class="content-note">
             ※ 自動再生はミュート設定です。音を出したい場合は、動画をクリックして音量を上げてください。<br />
-            ※ 表示する動画を変えたい場合は、コード中の <code>VIDEO_ID_HERE</code> を任意の動画IDに変更してください。
+            ※ 動画設定はこのPCごとに保存されます。
           </p>
         </section>
       </aside>
@@ -523,8 +595,9 @@
   <script>
     // ===== 設定 =====
     const STORAGE_KEY = "public_display_board_v1";
+    const VIDEO_STORAGE_KEY = "public_display_board_video_v1";
 
-    // DOM参照
+    // DOM参照（掲示板）
     const titleInput = document.getElementById("titleInput");
     const deptInput = document.getElementById("deptInput");
     const bodyInput = document.getElementById("bodyInput");
@@ -542,18 +615,30 @@
     const postPanel = document.getElementById("postPanel");
     const toggleFormButton = document.getElementById("toggleFormButton");
 
+    // DOM参照（動画設定）
+    const videoSettingsButton = document.getElementById("videoSettingsButton");
+    const videoSettingsPanel = document.getElementById("videoSettingsPanel");
+    const videoUrlInput = document.getElementById("videoUrlInput");
+    const videoSaveButton = document.getElementById("videoSaveButton");
+    const videoCancelButton = document.getElementById("videoCancelButton");
+    const videoWrapper = document.getElementById("videoWrapper");
+    const videoFrame = document.getElementById("videoFrame");
+    const noVideoMessage = document.getElementById("noVideoMessage");
+
     // データ
     let posts = loadPosts();
     let activeFilter = "all"; // タブの状態
     let currentImageDataUrl = null; // 今入力中の画像
     let formOpen = false;
 
-    renderList();
+    let videoId = loadVideoId();
 
-    // ===== イベント =====
+    renderList();
+    updateVideoFrame();
+
+    // ===== 掲示板：イベント =====
     addButton.addEventListener("click", handleAdd);
     clearButton.addEventListener("click", handleClearAll);
-
     imageInput.addEventListener("change", handleImageChange);
 
     // フォーム開閉ボタン
@@ -821,7 +906,7 @@
       if (isNaN(d.getTime())) return "";
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate());
+      const day = String(d.getDate()).padStart(2, "0");
       const hh = String(d.getHours()).padStart(2, "0");
       const mm = String(d.getMinutes()).padStart(2, "0");
       return `${y}/${m}/${day} ${hh}:${mm}`;
@@ -835,6 +920,108 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
+    }
+
+    // ===== 動画設定まわり =====
+    videoSettingsButton.addEventListener("click", () => {
+      const isHidden = videoSettingsPanel.classList.contains("hidden");
+      if (isHidden) {
+        videoSettingsPanel.classList.remove("hidden");
+        // 既にIDがあれば、簡易的に共有URL形式で表示
+        if (videoId) {
+          videoUrlInput.value = `https://youtu.be/${videoId}`;
+        }
+        videoUrlInput.focus();
+      } else {
+        videoSettingsPanel.classList.add("hidden");
+      }
+    });
+
+    videoCancelButton.addEventListener("click", () => {
+      videoSettingsPanel.classList.add("hidden");
+    });
+
+    videoSaveButton.addEventListener("click", () => {
+      const url = videoUrlInput.value.trim();
+      const id = extractYouTubeVideoId(url);
+      if (!id) {
+        alert("動画のURLを正しく入力してください（共有ボタンからコピーしたURLなど）。\nチャンネルのURLではなく、動画1本のURLが必要です。");
+        return;
+      }
+      videoId = id;
+      saveVideoId(videoId);
+      updateVideoFrame();
+      videoSettingsPanel.classList.add("hidden");
+    });
+
+    videoUrlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        videoSaveButton.click();
+      }
+    });
+
+    function extractYouTubeVideoId(url) {
+      if (!url) return null;
+      try {
+        // 短縮URL youtu.be/XXXXXXXXXXX
+        if (url.includes("youtu.be/")) {
+          const part = url.split("youtu.be/")[1];
+          return part.split(/[?&]/)[0] || null;
+        }
+
+        // 通常URL watch?v=XXXXXXXXXXX
+        if (url.includes("watch?v=")) {
+          const part = url.split("watch?v=")[1];
+          return part.split(/[?&]/)[0] || null;
+        }
+
+        // 埋め込みURL /embed/XXXXXXXXXXX
+        if (url.includes("/embed/")) {
+          const part = url.split("/embed/")[1];
+          return part.split(/[?&]/)[0] || null;
+        }
+
+        return null;
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    function loadVideoId() {
+      try {
+        return localStorage.getItem(VIDEO_STORAGE_KEY) || null;
+      } catch (e) {
+        console.error(e);
+        return null;
+      }
+    }
+
+    function saveVideoId(id) {
+      try {
+        if (!id) {
+          localStorage.removeItem(VIDEO_STORAGE_KEY);
+        } else {
+          localStorage.setItem(VIDEO_STORAGE_KEY, id);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function updateVideoFrame() {
+      if (!videoId) {
+        videoWrapper.classList.add("hidden");
+        noVideoMessage.classList.remove("hidden");
+        videoFrame.src = "";
+        return;
+      }
+
+      const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0`;
+      videoFrame.src = src;
+      videoWrapper.classList.remove("hidden");
+      noVideoMessage.classList.add("hidden");
     }
   </script>
 </body>
