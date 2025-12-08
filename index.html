@@ -590,75 +590,111 @@
         </section>
 
         <!-- ★安全掲示板ボード：安全タブのときだけ表示★ -->
-        <section id="safetyBoardPanel" class="panel safety-board-panel hidden">
-          <h2>安全掲示板ボード</h2>
-          <p class="help-text">
-            安全パトロールの指摘事項・安全成績・産業医コメントなどを、月単位でまとめて掲示するエリアです（このPCに保存されます）。
-          </p>
+     <section id="safetyBoardPanel" class="panel safety-board-panel hidden">
+  <h2>安全掲示板ボード</h2>
+  <p class="help-text">
+    安全パトロールの指摘事項・安全成績・長時間労働と健康障害防止・今月のワイヤー点検色・産業医コメントなどを、
+    月単位でまとめて掲示するエリアです（このPCに保存されます）。
+  </p>
 
-          <div class="safety-grid">
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>安全パトロールの指摘事項</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <textarea
-                  class="safety-input"
-                  data-key="patrolFindings"
-                  placeholder="例：ワイヤーロープ未点検（B中・門型）、ブリッジ未使用 など"
-                ></textarea>
-              </div>
-            </div>
+  <div class="safety-grid">
+    <!-- 1. 安全パトロールの指摘事項 -->
+    <div class="safety-card">
+      <div class="safety-card-header">
+        <span>安全パトロールの指摘事項</span>
+        <span class="icon">✎</span>
+      </div>
+      <div class="safety-card-body">
+        <textarea
+          class="safety-input"
+          data-key="patrolFindings"
+          placeholder="例：ワイヤーロープ未点検（B中・門型）、ブリッジ未使用 など"
+        ></textarea>
+      </div>
+    </div>
 
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>安全成績</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <textarea
-                  class="safety-input"
-                  data-key="safetyRecord"
-                  placeholder="例：連続無災害記録は○○○日です　など"
-                ></textarea>
-              </div>
-            </div>
+    <!-- 2. 安全成績 -->
+    <div class="safety-card">
+      <div class="safety-card-header">
+        <span>安全成績</span>
+        <span class="icon">✎</span>
+      </div>
+      <div class="safety-card-body">
+        <textarea
+          class="safety-input"
+          data-key="safetyRecord"
+          placeholder="例：連続無災害記録は○○○日です　など"
+        ></textarea>
+      </div>
+    </div>
 
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>安全パトロール日程</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <textarea
-                  class="safety-input"
-                  data-key="patrolSchedule"
-                  placeholder="例：1班 ○月○日（金）〜　といった日程を記入"
-                ></textarea>
-              </div>
-            </div>
+    <!-- 3. 安全パトロール日程 -->
+    <div class="safety-card">
+      <div class="safety-card-header">
+        <span>安全パトロール日程</span>
+        <span class="icon">✎</span>
+      </div>
+      <div class="safety-card-body">
+        <textarea
+          class="safety-input"
+          data-key="patrolSchedule"
+          placeholder="例：1班 ○月○日（金）〜　といった日程を記入"
+        ></textarea>
+      </div>
+    </div>
 
-            <div class="safety-card">
-              <div class="safety-card-header">
-                <span>産業医工場巡視より／健康情報</span>
-                <span class="icon">✎</span>
-              </div>
-              <div class="safety-card-body">
-                <textarea
-                  class="safety-input"
-                  data-key="doctorComment"
-                  placeholder="例：ノロウイルス・インフルエンザ対策のお願い　など"
-                ></textarea>
-              </div>
-            </div>
-          </div>
+    <!-- 4. 長時間労働と健康障害防止 -->
+    <div class="safety-card">
+      <div class="safety-card-header">
+        <span>長時間労働と健康障害防止</span>
+        <span class="icon">✎</span>
+      </div>
+      <div class="safety-card-body">
+        <textarea
+          class="safety-input"
+          data-key="longWorkHealth"
+          placeholder="例：特別延長時間の上限・長時間労働者への面談予定 など"
+        ></textarea>
+      </div>
+    </div>
 
-          <div class="safety-save-row">
-            <button id="saveSafetyBoardButton" class="secondary">安全ボードを保存</button>
-            <span id="safetySaveStatus" class="status"></span>
-          </div>
-        </section>
+    <!-- 5. 今月のワイヤー点検色 -->
+    <div class="safety-card">
+      <div class="safety-card-header">
+        <span>今月のワイヤー点検色</span>
+        <span class="icon">✎</span>
+      </div>
+      <div class="safety-card-body">
+        <textarea
+          class="safety-input"
+          data-key="wireCheckColor"
+          placeholder="例：今月の点検色は『黄色』です　など"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- 6. 産業医工場巡視より／健康情報 -->
+    <div class="safety-card">
+      <div class="safety-card-header">
+        <span>産業医工場巡視より／健康情報</span>
+        <span class="icon">✎</span>
+      </div>
+      <div class="safety-card-body">
+        <textarea
+          class="safety-input"
+          data-key="doctorComment"
+          placeholder="例：ノロウイルス・インフルエンザ対策のお願い　など"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="safety-save-row">
+    <button id="saveSafetyBoardButton" class="secondary">安全ボードを保存</button>
+    <span id="safetySaveStatus" class="status"></span>
+  </div>
+</section>
+
 
         <footer>
           ※ 掲示内容と写真・安全ボードは、このPCのブラウザ（localStorage）内に保存されます。<br />
