@@ -4,63 +4,32 @@
   <meta charset="UTF-8" />
   <title>情報発信掲示板システム</title>
   <style>
-    /* ===== テーマ色（ここだけ変えれば雰囲気が変わる） ===== */
     :root {
-      --bg-color: #f3f4f6;         /* ページの背景色 */
-      --panel-bg: #ffffff;         /* パネルの背景 */
-      --accent: #2563eb;           /* メインの青 */
-      --accent-soft: #dbeafe;      /* 薄い青 */
-      --border: #d1d5db;           /* 枠線 */
-      --text-main: #111827;        /* 文字色（メイン） */
-      --text-sub: #6b7280;         /* 文字色（サブ） */
+      --bg-color: #f3f4f6;
+      --panel-bg: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border: #d1d5db;
+      --text-main: #111827;
+      --text-sub: #6b7280;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
+      font-family: system-ui, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-main);
     }
 
     .page {
-      max-width: 1200px;
+      max-width: 1000px;
       margin: 16px auto 32px;
       padding: 16px;
     }
 
-    /* ===== 左右レイアウト ===== */
-    .layout {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-
-    .main-column {
-      flex: 3;
-      min-width: 0;
-    }
-
-    .side-column {
-      flex: 2;
-      min-width: 260px;
-      max-width: 360px;
-    }
-
-    @media (max-width: 900px) {
-      .layout {
-        flex-direction: column;
-      }
-      .side-column {
-        max-width: none;
-      }
-    }
-
-    /* ===== ヘッダー ===== */
+    /* ヘッダー */
     header {
       margin-bottom: 12px;
       display: flex;
@@ -84,7 +53,7 @@
       white-space: nowrap;
     }
 
-    /* ===== タブ ===== */
+    /* タブ */
     .tabs {
       display: flex;
       flex-wrap: wrap;
@@ -110,13 +79,12 @@
       border-bottom-color: var(--bg-color);
     }
 
-    /* ===== パネル共通 ===== */
+    /* パネル */
     .panel {
       background-color: var(--panel-bg);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px 14px;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
       margin-bottom: 12px;
     }
 
@@ -127,7 +95,271 @@
       padding-bottom: 4px;
     }
 
-    /* 共通ボタン */
+    /* ボタン */
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--accent);
+      background-color: var(--accent);
+      color: #ffffff;
+      transition: background 0.15s, transform 0.05s;
+    }
+
+    button:hover { background-color: #1d4ed8; }
+    button:active { transform: translateY(1px); }
+
+    button.secondary {
+      background-color: #ffffff;
+      color: var(--accent);
+    }
+
+    button.danger {
+      border-color: #b91c1c;
+      color: #b91c1c;
+      background-color: #fee2e2;
+    }
+
+    /* 入力フォーム */
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background-color: #f9fafb;
+      font-size: 13px;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* 写真プレビュー */
+    .image-preview-wrapper { margin-top: 4px; }
+    .image-preview { max-width: 240px; border-radius: 8px; }
+
+    .hidden { display: none; }
+
+    /* 掲示一覧 */
+    .list-container { max-height: 480px; overflow-y: auto; }
+
+    .item { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+    .item:last-child { border-bottom: none; }
+
+    .item-header {
+      display: flex; justify-content: space-between; gap: 8px;
+    }
+
+    .item-title { font-weight: 600; }
+
+    .badge { padding: 2px 6px; border-radius: 8px; font-size: 11px; }
+
+    .badge-dept-management { background:#dbeafe; color:#1d4ed8; }
+    .badge-dept-factory { background:#dcfce7; color:#15803d; }
+    .badge-dept-news { background:#fee2e2; color:#b91c1c; }
+    .badge-dept-safety { background:#fef9c3; color:#92400e; }
+
+    .badge-important {
+      border:1px solid #b91c1c; background:#fee2e2; color:#b91c1c;
+    }
+
+    .item-image {
+      margin-top: 6px;
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 8px;
+      object-fit: cover;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <header>
+      <div class="header-main">
+        <h1>情報発信掲示板システム</h1>
+        <p>管理部・製造部・安全掲示板をまとめて表示（写真添付対応）</p>
+      </div>
+      <div class="header-actions">
+        <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
+      </div>
+    </header>
+
+    <!-- タブ -->
+    <nav class="tabs">
+      <button class="tab active" data-filter="all">全体情報</button>
+      <button class="tab" data-filter="management">管理部</button>
+      <button class="tab" data-filter="factory">製造部</button>
+      <button class="tab" data-filter="news">会社ニュース</button>
+      <button class="tab" data-filter="safety">安全掲示板</button>
+    </nav>
+
+    <!-- 投稿フォーム -->
+    <section id="postPanel" class="panel hidden">
+      <h2>新しいお知らせを投稿</h2>
+
+      <div class="form-row">
+        <label>タイトル</label>
+        <input id="titleInput" type="text" />
+      </div>
+
+      <div class="form-row">
+        <label>部署</label>
+        <select id="deptInput">
+          <option value="management">管理部</option>
+          <option value="factory">製造部</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>本文</label>
+        <textarea id="bodyInput"></textarea>
+      </div>
+
+      <div class="form-row">
+        <label>重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>投稿者</label>
+        <input id="authorInput" type="text" />
+      </div>
+
+      <div class="form-row">
+        <label>写真を添付（任意）</label>
+        <input id="imageInput" type="file" accept="image/*" />
+
+        <div id="imagePreviewWrapper" class="image-preview-wrapper hidden">
+          <img id="imagePreview" class="image-preview" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <button id="addButton">投稿する</button>
+        <button id="clearButton" class="danger">全削除（このPCのみ）</button>
+      </div>
+    </section>
+
+    <!-- 一覧 -->
+    <section class="panel">
+      <h2>掲示一覧（新しい順）</h2>
+      <div id="listContainer" class="list-container"></div>
+    </section>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>情報発信掲示板システム</title>
+  <style>
+    :root {
+      --bg-color: #f3f4f6;
+      --panel-bg: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --border: #d1d5db;
+      --text-main: #111827;
+      --text-sub: #6b7280;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 16px auto 32px;
+      padding: 16px;
+    }
+
+    /* ヘッダー */
+    header {
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    .header-main h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .header-main p {
+      margin: 4px 0 0;
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .header-actions {
+      white-space: nowrap;
+    }
+
+    /* タブ */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin: 8px 0 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab {
+      border: none;
+      background: transparent;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      border-radius: 6px 6px 0 0;
+      color: var(--text-sub);
+    }
+
+    .tab.active {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      border-bottom-color: var(--bg-color);
+    }
+
+    /* パネル */
+    .panel {
+      background-color: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    /* ボタン */
     button {
       cursor: pointer;
       font-family: inherit;
@@ -165,12 +397,7 @@
       background-color: #fecaca;
     }
 
-    .small-button {
-      font-size: 12px;
-      padding: 4px 10px;
-    }
-
-    /* ===== 入力フォーム ===== */
+    /* 入力フォーム */
     .form-row {
       display: flex;
       flex-direction: column;
@@ -250,7 +477,7 @@
       display: none;
     }
 
-    /* ===== 掲示一覧 ===== */
+    /* 掲示一覧 */
     .list-container {
       max-height: 480px;
       overflow-y: auto;
@@ -356,67 +583,6 @@
       color: var(--text-sub);
     }
 
-    /* ===== 右側：YouTubeコンテンツ ===== */
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-
-    .panel-header h2 {
-      border-bottom: none;
-      padding-bottom: 0;
-      margin: 0;
-      font-size: 16px;
-    }
-
-    .video-wrapper {
-      position: relative;
-      width: 100%;
-      padding-top: 56.25%; /* 16:9 */
-      border-radius: 8px;
-      overflow: hidden;
-      background: #000;
-    }
-
-    .video-wrapper iframe {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    .content-note {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-top: 4px;
-    }
-
-    .settings-panel {
-      border-radius: 6px;
-      border: 1px dashed var(--border);
-      padding: 8px;
-      margin-bottom: 8px;
-      background-color: #f9fafb;
-    }
-
-    .settings-row {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .settings-actions {
-      margin-top: 6px;
-      display: flex;
-      gap: 6px;
-      justify-content: flex-end;
-    }
-
     @media (max-width: 640px) {
       .page {
         padding: 8px;
@@ -440,164 +606,97 @@
 </head>
 <body>
   <div class="page">
-    <div class="layout">
-      <!-- ===== 左：掲示板本体 ===== -->
-      <div class="main-column">
-        <header>
-          <div class="header-main">
-            <h1>情報発信掲示板システム</h1>
-            <p>管理部・製造部などの社内連絡をまとめて表示します（このPC保存版・写真添付対応）</p>
-          </div>
-          <div class="header-actions">
-            <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
-          </div>
-        </header>
+    <header>
+      <div class="header-main">
+        <h1>情報発信掲示板システム</h1>
+        <p>管理部・製造部・会社ニュース・安全掲示板の社内連絡をまとめて表示（このPC保存版・写真添付対応）</p>
+      </div>
+      <div class="header-actions">
+        <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
+      </div>
+    </header>
 
-        <!-- タブ（絞り込み） -->
-        <nav class="tabs">
-          <button class="tab active" data-filter="all">全体情報</button>
-          <button class="tab" data-filter="management">管理部</button>
-          <button class="tab" data-filter="factory">製造部</button>
-          <button class="tab" data-filter="news">会社ニュース</button>
-          <button class="tab" data-filter="safety">安全掲示板</button>
-        </nav>
+    <!-- タブ（絞り込み） -->
+    <nav class="tabs">
+      <button class="tab active" data-filter="all">全体情報</button>
+      <button class="tab" data-filter="management">管理部</button>
+      <button class="tab" data-filter="factory">製造部</button>
+      <button class="tab" data-filter="news">会社ニュース</button>
+      <button class="tab" data-filter="safety">安全掲示板</button>
+    </nav>
 
-        <!-- 入力パネル（デフォルト非表示） -->
-        <section id="postPanel" class="panel hidden">
-          <h2>新しいお知らせを投稿</h2>
+    <!-- 入力パネル（デフォルト非表示） -->
+    <section id="postPanel" class="panel hidden">
+      <h2>新しいお知らせを投稿</h2>
 
-          <div class="form-row">
-            <label for="titleInput">タイトル</label>
-            <input
-              id="titleInput"
-              type="text"
-              placeholder="例：明日の朝礼について"
-            />
-          </div>
-
-          <div class="form-row">
-            <label for="deptInput">部署</label>
-            <select id="deptInput">
-              <option value="management">管理部からのお知らせ</option>
-              <option value="factory">製造部からのお知らせ</option>
-              <option value="news">会社ニュース</option>
-              <option value="safety">安全掲示板</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="bodyInput">本文</label>
-            <textarea
-              id="bodyInput"
-              placeholder="掲示内容を入力してください"
-            ></textarea>
-          </div>
-
-          <div class="form-row">
-            <label for="importantInput">重要度</label>
-            <select id="importantInput">
-              <option value="normal">通常</option>
-              <option value="important">重要</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <label for="authorInput">投稿者（任意）</label>
-            <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
-          </div>
-
-          <div class="form-row">
-            <label for="imageInput">写真を添付（任意）</label>
-            <input id="imageInput" type="file" accept="image/*" />
-            <div class="help-text">
-              ※ 1枚のみ。500KB〜1MB程度まで推奨（大きすぎると保存できない場合があります）。
-            </div>
-            <div id="imagePreviewWrapper" class="image-preview-wrapper hidden">
-              <div class="image-preview-label">プレビュー</div>
-              <img id="imagePreview" class="image-preview" alt="画像プレビュー" />
-            </div>
-          </div>
-
-          <div class="button-row">
-            <button id="addButton">投稿する</button>
-            <button id="clearButton" class="danger">
-              このブラウザの掲示をすべて削除
-            </button>
-          </div>
-        </section>
-
-        <!-- 一覧パネル -->
-        <section class="panel">
-          <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
-          <div id="listContainer" class="list-container">
-            <!-- JSで埋まる -->
-          </div>
-        </section>
-
-        <footer>
-          ※ 掲示内容と写真は、このPCのブラウザ（localStorage）内に保存されます。<br />
-          ※ 写真を大量に保存すると容量制限に達する場合があります。
-        </footer>
+      <div class="form-row">
+        <label for="titleInput">タイトル</label>
+        <input id="titleInput" type="text" placeholder="例：明日の朝礼について" />
       </div>
 
-      <!-- ===== 右：YouTubeコンテンツ ===== -->
-      <aside class="side-column">
-        <section class="panel">
-          <div class="panel-header">
-            <h2>社内コンテンツ（TAKAチャンネル）</h2>
-            <button id="videoSettingsButton" class="secondary small-button">動画設定</button>
-          </div>
+      <div class="form-row">
+        <label for="deptInput">部署</label>
+        <select id="deptInput">
+          <option value="management">管理部からのお知らせ</option>
+          <option value="factory">製造部からのお知らせ</option>
+          <option value="news">会社ニュース</option>
+          <option value="safety">安全掲示板</option>
+        </select>
+      </div>
 
-          <!-- 動画設定パネル（共有URL入力） -->
-          <div id="videoSettingsPanel" class="settings-panel hidden">
-            <div class="settings-row">
-              <label for="videoUrlInput" style="font-size:12px; color:var(--text-sub);">
-                YouTube の<strong>共有URL</strong>を貼り付けてください
-              </label>
-              <input
-                id="videoUrlInput"
-                type="text"
-                placeholder="例）https://youtu.be/XXXXXXXXXXX や https://www.youtube.com/watch?v=XXXXXXXXXXX"
-              />
-              <div class="help-text">
-                ※ 動画1本のURLのみ対応（チャンネルのURLは不可）。<br />
-                ※ 貼り替えて「保存」すると、右の動画欄がすぐに切り替わります。
-              </div>
-            </div>
-            <div class="settings-actions">
-              <button id="videoCancelButton" class="secondary small-button">閉じる</button>
-              <button id="videoSaveButton" class="small-button">保存</button>
-            </div>
-          </div>
+      <div class="form-row">
+        <label for="bodyInput">本文</label>
+        <textarea id="bodyInput" placeholder="掲示内容を入力してください"></textarea>
+      </div>
 
-          <!-- 動画 or 未設定メッセージ -->
-          <div id="videoWrapper" class="video-wrapper hidden">
-            <iframe
-              id="videoFrame"
-              src=""
-              title="TAKAチャンネル"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-          </div>
-          <p id="noVideoMessage" class="content-note">
-            まだ動画が設定されていません。右上の「動画設定」から、流したい動画の共有URLを登録してください。
-          </p>
-          <p class="content-note">
-            ※ 自動再生はミュート設定です。音を出したい場合は、動画をクリックして音量を上げてください。<br />
-            ※ 動画設定はこのPCごとに保存されます。
-          </p>
-        </section>
-      </aside>
-    </div>
+      <div class="form-row">
+        <label for="importantInput">重要度</label>
+        <select id="importantInput">
+          <option value="normal">通常</option>
+          <option value="important">重要</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label for="authorInput">投稿者（任意）</label>
+        <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
+      </div>
+
+      <div class="form-row">
+        <label for="imageInput">写真を添付（任意）</label>
+        <input id="imageInput" type="file" accept="image/*" />
+        <div class="help-text">
+          ※ 1枚のみ。500KB〜1MB程度まで推奨（大きすぎると保存できない場合があります）。
+        </div>
+        <div id="imagePreviewWrapper" class="image-preview-wrapper hidden">
+          <div class="image-preview-label">プレビュー</div>
+          <img id="imagePreview" class="image-preview" alt="画像プレビュー" />
+        </div>
+      </div>
+
+      <div class="button-row">
+        <button id="addButton">投稿する</button>
+        <button id="clearButton" class="danger">このブラウザの掲示をすべて削除</button>
+      </div>
+    </section>
+
+    <!-- 一覧パネル -->
+    <section class="panel">
+      <h2>掲示一覧（タブで絞り込み・新しい順）</h2>
+      <div id="listContainer" class="list-container"></div>
+    </section>
+
+    <footer>
+      ※ 掲示内容と写真は、このPCのブラウザ（localStorage）内に保存されます。<br />
+      ※ 写真を大量に保存すると容量制限に達する場合があります。
+    </footer>
   </div>
 
   <script>
     // ===== 設定 =====
     const STORAGE_KEY = "public_display_board_v1";
-    const VIDEO_STORAGE_KEY = "public_display_board_video_v1";
 
-    // DOM参照（掲示板）
+    // DOM参照
     const titleInput = document.getElementById("titleInput");
     const deptInput = document.getElementById("deptInput");
     const bodyInput = document.getElementById("bodyInput");
@@ -615,28 +714,15 @@
     const postPanel = document.getElementById("postPanel");
     const toggleFormButton = document.getElementById("toggleFormButton");
 
-    // DOM参照（動画設定）
-    const videoSettingsButton = document.getElementById("videoSettingsButton");
-    const videoSettingsPanel = document.getElementById("videoSettingsPanel");
-    const videoUrlInput = document.getElementById("videoUrlInput");
-    const videoSaveButton = document.getElementById("videoSaveButton");
-    const videoCancelButton = document.getElementById("videoCancelButton");
-    const videoWrapper = document.getElementById("videoWrapper");
-    const videoFrame = document.getElementById("videoFrame");
-    const noVideoMessage = document.getElementById("noVideoMessage");
-
     // データ
     let posts = loadPosts();
     let activeFilter = "all"; // タブの状態
     let currentImageDataUrl = null; // 今入力中の画像
     let formOpen = false;
 
-    let videoId = loadVideoId();
-
     renderList();
-    updateVideoFrame();
 
-    // ===== 掲示板：イベント =====
+    // ===== イベント =====
     addButton.addEventListener("click", handleAdd);
     clearButton.addEventListener("click", handleClearAll);
     imageInput.addEventListener("change", handleImageChange);
@@ -921,108 +1007,7 @@
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
     }
-
-    // ===== 動画設定まわり =====
-    videoSettingsButton.addEventListener("click", () => {
-      const isHidden = videoSettingsPanel.classList.contains("hidden");
-      if (isHidden) {
-        videoSettingsPanel.classList.remove("hidden");
-        // 既にIDがあれば、簡易的に共有URL形式で表示
-        if (videoId) {
-          videoUrlInput.value = `https://youtu.be/${videoId}`;
-        }
-        videoUrlInput.focus();
-      } else {
-        videoSettingsPanel.classList.add("hidden");
-      }
-    });
-
-    videoCancelButton.addEventListener("click", () => {
-      videoSettingsPanel.classList.add("hidden");
-    });
-
-    videoSaveButton.addEventListener("click", () => {
-      const url = videoUrlInput.value.trim();
-      const id = extractYouTubeVideoId(url);
-      if (!id) {
-        alert("動画のURLを正しく入力してください（共有ボタンからコピーしたURLなど）。\nチャンネルのURLではなく、動画1本のURLが必要です。");
-        return;
-      }
-      videoId = id;
-      saveVideoId(videoId);
-      updateVideoFrame();
-      videoSettingsPanel.classList.add("hidden");
-    });
-
-    videoUrlInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        videoSaveButton.click();
-      }
-    });
-
-    function extractYouTubeVideoId(url) {
-      if (!url) return null;
-      try {
-        // 短縮URL youtu.be/XXXXXXXXXXX
-        if (url.includes("youtu.be/")) {
-          const part = url.split("youtu.be/")[1];
-          return part.split(/[?&]/)[0] || null;
-        }
-
-        // 通常URL watch?v=XXXXXXXXXXX
-        if (url.includes("watch?v=")) {
-          const part = url.split("watch?v=")[1];
-          return part.split(/[?&]/)[0] || null;
-        }
-
-        // 埋め込みURL /embed/XXXXXXXXXXX
-        if (url.includes("/embed/")) {
-          const part = url.split("/embed/")[1];
-          return part.split(/[?&]/)[0] || null;
-        }
-
-        return null;
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    }
-
-    function loadVideoId() {
-      try {
-        return localStorage.getItem(VIDEO_STORAGE_KEY) || null;
-      } catch (e) {
-        console.error(e);
-        return null;
-      }
-    }
-
-    function saveVideoId(id) {
-      try {
-        if (!id) {
-          localStorage.removeItem(VIDEO_STORAGE_KEY);
-        } else {
-          localStorage.setItem(VIDEO_STORAGE_KEY, id);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    function updateVideoFrame() {
-      if (!videoId) {
-        videoWrapper.classList.add("hidden");
-        noVideoMessage.classList.remove("hidden");
-        videoFrame.src = "";
-        return;
-      }
-
-      const src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0`;
-      videoFrame.src = src;
-      videoWrapper.classList.remove("hidden");
-      noVideoMessage.classList.add("hidden");
-    }
   </script>
 </body>
 </html>
+
