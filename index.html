@@ -18,268 +18,6 @@
 
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-    }
-
-    .page {
-      max-width: 1000px;
-      margin: 16px auto 32px;
-      padding: 16px;
-    }
-
-    /* ヘッダー */
-    header {
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 12px;
-    }
-
-    .header-main h1 {
-      margin: 0;
-      font-size: 24px;
-    }
-
-    .header-main p {
-      margin: 4px 0 0;
-      font-size: 12px;
-      color: var(--text-sub);
-    }
-
-    .header-actions {
-      white-space: nowrap;
-    }
-
-    /* タブ */
-    .tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin: 8px 0 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .tab {
-      border: none;
-      background: transparent;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 13px;
-      border-radius: 6px 6px 0 0;
-      color: var(--text-sub);
-    }
-
-    .tab.active {
-      background-color: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid var(--border);
-      border-bottom-color: var(--bg-color);
-    }
-
-    /* パネル */
-    .panel {
-      background-color: var(--panel-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
-    }
-
-    .panel h2 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 4px;
-    }
-
-    /* ボタン */
-    button {
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
-      padding: 6px 12px;
-      border-radius: 999px;
-      border: 1px solid var(--accent);
-      background-color: var(--accent);
-      color: #ffffff;
-      transition: background 0.15s, transform 0.05s;
-    }
-
-    button:hover { background-color: #1d4ed8; }
-    button:active { transform: translateY(1px); }
-
-    button.secondary {
-      background-color: #ffffff;
-      color: var(--accent);
-    }
-
-    button.danger {
-      border-color: #b91c1c;
-      color: #b91c1c;
-      background-color: #fee2e2;
-    }
-
-    /* 入力フォーム */
-    .form-row {
-      display: flex;
-      flex-direction: column;
-      margin-bottom: 8px;
-    }
-
-    input[type="text"],
-    textarea,
-    select {
-      padding: 4px 6px;
-      border-radius: 4px;
-      border: 1px solid var(--border);
-      background-color: #f9fafb;
-      font-size: 13px;
-    }
-
-    textarea { resize: vertical; min-height: 80px; }
-
-    /* 写真プレビュー */
-    .image-preview-wrapper { margin-top: 4px; }
-    .image-preview { max-width: 240px; border-radius: 8px; }
-
-    .hidden { display: none; }
-
-    /* 掲示一覧 */
-    .list-container { max-height: 480px; overflow-y: auto; }
-
-    .item { padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
-    .item:last-child { border-bottom: none; }
-
-    .item-header {
-      display: flex; justify-content: space-between; gap: 8px;
-    }
-
-    .item-title { font-weight: 600; }
-
-    .badge { padding: 2px 6px; border-radius: 8px; font-size: 11px; }
-
-    .badge-dept-management { background:#dbeafe; color:#1d4ed8; }
-    .badge-dept-factory { background:#dcfce7; color:#15803d; }
-    .badge-dept-news { background:#fee2e2; color:#b91c1c; }
-    .badge-dept-safety { background:#fef9c3; color:#92400e; }
-
-    .badge-important {
-      border:1px solid #b91c1c; background:#fee2e2; color:#b91c1c;
-    }
-
-    .item-image {
-      margin-top: 6px;
-      max-width: 100%;
-      max-height: 240px;
-      border-radius: 8px;
-      object-fit: cover;
-      display: block;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="page">
-
-    <header>
-      <div class="header-main">
-        <h1>情報発信掲示板システム</h1>
-        <p>管理部・製造部・安全掲示板をまとめて表示（写真添付対応）</p>
-      </div>
-      <div class="header-actions">
-        <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
-      </div>
-    </header>
-
-    <!-- タブ -->
-    <nav class="tabs">
-      <button class="tab active" data-filter="all">全体情報</button>
-      <button class="tab" data-filter="management">管理部</button>
-      <button class="tab" data-filter="factory">製造部</button>
-      <button class="tab" data-filter="news">会社ニュース</button>
-      <button class="tab" data-filter="safety">安全掲示板</button>
-    </nav>
-
-    <!-- 投稿フォーム -->
-    <section id="postPanel" class="panel hidden">
-      <h2>新しいお知らせを投稿</h2>
-
-      <div class="form-row">
-        <label>タイトル</label>
-        <input id="titleInput" type="text" />
-      </div>
-
-      <div class="form-row">
-        <label>部署</label>
-        <select id="deptInput">
-          <option value="management">管理部</option>
-          <option value="factory">製造部</option>
-          <option value="news">会社ニュース</option>
-          <option value="safety">安全掲示板</option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <label>本文</label>
-        <textarea id="bodyInput"></textarea>
-      </div>
-
-      <div class="form-row">
-        <label>重要度</label>
-        <select id="importantInput">
-          <option value="normal">通常</option>
-          <option value="important">重要</option>
-        </select>
-      </div>
-
-      <div class="form-row">
-        <label>投稿者</label>
-        <input id="authorInput" type="text" />
-      </div>
-
-      <div class="form-row">
-        <label>写真を添付（任意）</label>
-        <input id="imageInput" type="file" accept="image/*" />
-
-        <div id="imagePreviewWrapper" class="image-preview-wrapper hidden">
-          <img id="imagePreview" class="image-preview" />
-        </div>
-      </div>
-
-      <div class="form-row">
-        <button id="addButton">投稿する</button>
-        <button id="clearButton" class="danger">全削除（このPCのみ）</button>
-      </div>
-    </section>
-
-    <!-- 一覧 -->
-    <section class="panel">
-      <h2>掲示一覧（新しい順）</h2>
-      <div id="listContainer" class="list-container"></div>
-    </section>
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <title>情報発信掲示板システム</title>
-  <style>
-    :root {
-      --bg-color: #f3f4f6;
-      --panel-bg: #ffffff;
-      --accent: #2563eb;
-      --accent-soft: #dbeafe;
-      --border: #d1d5db;
-      --text-main: #111827;
-      --text-sub: #6b7280;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
       background-color: var(--bg-color);
@@ -516,7 +254,6 @@
       white-space: pre-wrap;
     }
 
-    /* 掲示内の画像 */
     .item-image {
       margin-top: 6px;
       max-width: 100%;
@@ -526,7 +263,6 @@
       display: block;
     }
 
-    /* バッジ */
     .badge {
       display: inline-block;
       font-size: 11px;
@@ -535,25 +271,10 @@
       margin-right: 4px;
     }
 
-    .badge-dept-management {
-      background-color: #dbeafe;
-      color: #1d4ed8;
-    }
-
-    .badge-dept-factory {
-      background-color: #dcfce7;
-      color: #15803d;
-    }
-
-    .badge-dept-news {
-      background-color: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .badge-dept-safety {
-      background-color: #fef9c3;
-      color: #92400e;
-    }
+    .badge-dept-management { background-color: #dbeafe; color: #1d4ed8; }
+    .badge-dept-factory   { background-color: #dcfce7; color: #15803d; }
+    .badge-dept-news      { background-color: #fee2e2; color: #b91c1c; }
+    .badge-dept-safety    { background-color: #fef9c3; color: #92400e; }
 
     .badge-important {
       border: 1px solid #b91c1c;
@@ -693,10 +414,8 @@
   </div>
 
   <script>
-    // ===== 設定 =====
     const STORAGE_KEY = "public_display_board_v1";
 
-    // DOM参照
     const titleInput = document.getElementById("titleInput");
     const deptInput = document.getElementById("deptInput");
     const bodyInput = document.getElementById("bodyInput");
@@ -710,24 +429,20 @@
     const clearButton = document.getElementById("clearButton");
     const listContainer = document.getElementById("listContainer");
     const tabs = document.querySelectorAll(".tab");
-
     const postPanel = document.getElementById("postPanel");
     const toggleFormButton = document.getElementById("toggleFormButton");
 
-    // データ
     let posts = loadPosts();
-    let activeFilter = "all"; // タブの状態
-    let currentImageDataUrl = null; // 今入力中の画像
+    let activeFilter = "all";
+    let currentImageDataUrl = null;
     let formOpen = false;
 
     renderList();
 
-    // ===== イベント =====
     addButton.addEventListener("click", handleAdd);
     clearButton.addEventListener("click", handleClearAll);
     imageInput.addEventListener("change", handleImageChange);
 
-    // フォーム開閉ボタン
     toggleFormButton.addEventListener("click", () => {
       formOpen = !formOpen;
       if (formOpen) {
@@ -740,7 +455,6 @@
       }
     });
 
-    // Ctrl+Enter(or Cmd+Enter) で投稿
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
         if (!formOpen) return;
@@ -748,7 +462,6 @@
       }
     });
 
-    // タブクリックで絞り込み
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
         tabs.forEach((t) => t.classList.remove("active"));
@@ -758,7 +471,6 @@
       });
     });
 
-    // ===== 画像選択処理 =====
     function handleImageChange(event) {
       const file = event.target.files && event.target.files[0];
       if (!file) {
@@ -767,7 +479,7 @@
         return;
       }
 
-      const limitBytes = 1 * 1024 * 1024; // 1MB
+      const limitBytes = 1 * 1024 * 1024;
       if (file.size > limitBytes) {
         alert("画像が大きすぎます。1MB以下の画像を選んでください。");
         imageInput.value = "";
@@ -802,7 +514,6 @@
       imagePreviewWrapper.classList.add("hidden");
     }
 
-    // ===== 掲示処理 =====
     function handleAdd() {
       const title = titleInput.value.trim();
       const body = bodyInput.value.trim();
@@ -1010,4 +721,3 @@
   </script>
 </body>
 </html>
-
