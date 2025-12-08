@@ -443,7 +443,7 @@
       <div>
         <section class="panel" id="boardPanel">
           <h2>掲示一覧</h2>
-         <div class="tabs">
+       <div class="tabs">
   <button class="tab-btn active" data-tab="all">全体</button>
   <button class="tab-btn" data-tab="management">管理部</button>
   <button class="tab-btn" data-tab="factory">製造部</button>
@@ -451,6 +451,7 @@
   <button class="tab-btn" data-tab="safety">安全掲示板</button>
   <button class="tab-btn" data-tab="manner">職場マナー</button>
 </div>
+
           <div id="listContainer" class="list-container"></div>
 
           <!-- 安全掲示板専用カード -->
@@ -636,6 +637,24 @@
     const boardPanel = document.getElementById("boardPanel");
     const listContainer = document.getElementById("listContainer");
     const tabs = document.querySelectorAll(".tab-btn");
+    // ===== タブ切り替え =====
+tabs.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    // 見た目のアクティブ切り替え
+    tabs.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    // タブの種類を更新
+    currentTab = btn.dataset.tab;
+
+    // 安全掲示板の背景変化など
+    updateSafetyBackground();
+
+    // 再描画
+    renderList();
+  });
+});
+
     const safetyExtraWrapper = document.getElementById("safetyExtraWrapper");
 
     const openNewPostBtn = document.getElementById("openNewPost");
@@ -808,20 +827,35 @@ document.querySelectorAll("[data-close]").forEach((el) => {
       renderList();
     });
 
-  function renderList() {
+ function renderList() {
   listContainer.innerHTML = "";
 
   const filtered = posts.filter((p) => {
+    // （もし削除フラグを使っている場合はここで除外）
+    if (p.deleted) return false;
+
     if (currentTab === "all") {
-      // 職場マナーは全体には出さない
+      // 全体タブでは「職場マナー」だけ除外
       return p.dept !== "manner";
     }
+    // それ以外のタブは、その部署だけ表示
     return p.dept === currentTab;
   });
 
-  // 〜このあと表示処理〜
-}
+  if (!filtered.length) {
+    const p = document.createElement("p");
+    p.className = "empty";
+    p.textContent = "まだ掲示はありません。新規投稿ボタンから追加してください。";
+    listContainer.appendChild(p);
+    return;
+  }
 
+  filtered.forEach((p) => {
+    // ここから下は、元の item 描画ロジックそのままでOK
+    // item / header / body / 画像 / 削除ボタン… の処理
+    // （今使っているコードをそのまま残してください）
+  });
+}
 
       if (!filtered.length) {
         const p = document.createElement("p");
