@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>情報発信掲示板システム</title>
+  <title>株式会社寺田鉄工所掲示板</title>
   <style>
     :root {
       --bg-color: #f3f4f6;
@@ -12,6 +12,11 @@
       --border: #d1d5db;
       --text-main: #111827;
       --text-sub: #6b7280;
+
+      /* ヘッダー用（色設定で変わる） */
+      --header-bg: #ffffff;
+      --header-text-main: #111827;
+      --header-text-sub: #6b7280;
     }
 
     * { box-sizing: border-box; }
@@ -60,6 +65,11 @@
       justify-content: space-between;
       align-items: flex-end;
       gap: 12px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: var(--header-bg);
+      color: var(--header-text-main);
     }
 
     .header-main h1 {
@@ -70,11 +80,21 @@
     .header-main p {
       margin: 4px 0 0;
       font-size: 12px;
-      color: var(--text-sub);
+      color: var(--header-text-sub);
+    }
+
+    .date-line {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--header-text-sub);
     }
 
     .header-actions {
       white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-items: flex-end;
     }
 
     /* タブ */
@@ -387,6 +407,26 @@
       flex: 1;
     }
 
+    .safety-style-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 11px;
+      color: #374151;
+    }
+
+    .safety-style-row select {
+      font-size: 11px;
+      padding: 2px 4px;
+    }
+
+    .safety-style-row input[type="checkbox"] {
+      transform: scale(0.9);
+      margin-right: 2px;
+    }
+
     .safety-card-body textarea {
       width: 100%;
       height: 100%;
@@ -416,6 +456,18 @@
     .safety-save-row .status {
       font-size: 11px;
       color: #374151;
+    }
+
+    /* ヘッダー色設定パネル */
+    .header-color-panel h2 {
+      font-size: 14px;
+    }
+
+    .header-color-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
     }
 
     /* サイド：社内コンテンツ */
@@ -498,7 +550,9 @@
       }
 
       .header-actions {
-        align-self: flex-start;
+        align-self: stretch;
+        flex-direction: row;
+        justify-content: flex-end;
       }
     }
   </style>
@@ -511,13 +565,34 @@
       <div class="main-column">
         <header>
           <div class="header-main">
-            <h1>情報発信掲示板システム</h1>
+            <h1>株式会社寺田鉄工所掲示板</h1>
             <p>管理部・製造部・会社ニュース・安全掲示板の社内連絡をまとめて表示（このPC保存版・写真添付対応）</p>
+            <p id="todayDate" class="date-line"></p>
           </div>
           <div class="header-actions">
             <button id="toggleFormButton" class="secondary">＋ 新しいお知らせを投稿</button>
+            <button id="toggleHeaderColorSettings" class="secondary small">⚙ ヘッダー色</button>
           </div>
         </header>
+
+        <!-- ヘッダー色設定パネル -->
+        <section id="headerColorSettings" class="panel header-color-panel hidden">
+          <h2>ヘッダー表示の設定</h2>
+          <div class="form-row">
+            <label>プリセット色</label>
+            <div class="header-color-presets">
+              <button type="button" class="secondary small header-color-btn" data-color="#ffffff">白</button>
+              <button type="button" class="secondary small header-color-btn" data-color="#1f2937">ダーク</button>
+              <button type="button" class="secondary small header-color-btn" data-color="#2563eb">青</button>
+              <button type="button" class="secondary small header-color-btn" data-color="#111827">黒</button>
+              <button type="button" class="secondary small header-color-btn" data-color="#facc15">安全イエロー</button>
+            </div>
+          </div>
+          <div class="form-row">
+            <label for="headerColorPicker">カスタム色</label>
+            <input id="headerColorPicker" type="color" />
+          </div>
+        </section>
 
         <!-- タブ（絞り込み） -->
         <nav class="tabs">
@@ -590,111 +665,200 @@
         </section>
 
         <!-- ★安全掲示板ボード：安全タブのときだけ表示★ -->
-     <section id="safetyBoardPanel" class="panel safety-board-panel hidden">
-  <h2>安全掲示板ボード</h2>
-  <p class="help-text">
-    安全パトロールの指摘事項・安全成績・長時間労働と健康障害防止・今月のワイヤー点検色・産業医コメントなどを、
-    月単位でまとめて掲示するエリアです（このPCに保存されます）。
-  </p>
+        <section id="safetyBoardPanel" class="panel safety-board-panel hidden">
+          <h2>安全掲示板ボード</h2>
+          <p class="help-text">
+            安全パトロールの指摘事項・安全成績・長時間労働と健康障害防止・今月のワイヤー点検色・産業医コメントなどを、
+            月単位でまとめて掲示するエリアです（このPCに保存されます）。
+          </p>
 
-  <div class="safety-grid">
-    <!-- 1. 安全パトロールの指摘事項 -->
-    <div class="safety-card">
-      <div class="safety-card-header">
-        <span>安全パトロールの指摘事項</span>
-        <span class="icon">✎</span>
-      </div>
-      <div class="safety-card-body">
-        <textarea
-          class="safety-input"
-          data-key="patrolFindings"
-          placeholder="例：ワイヤーロープ未点検（B中・門型）、ブリッジ未使用 など"
-        ></textarea>
-      </div>
-    </div>
+          <div class="safety-grid">
+            <!-- 1. 安全パトロールの指摘事項 -->
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>安全パトロールの指摘事項</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <div class="safety-style-row">
+                  <label>
+                    文字サイズ
+                    <select class="safety-size" data-key="patrolFindings">
+                      <option value="12">小</option>
+                      <option value="13">標準</option>
+                      <option value="16">大</option>
+                      <option value="20">特大</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type="checkbox" class="safety-bold" data-key="patrolFindings" />
+                    太字
+                  </label>
+                </div>
+                <textarea
+                  class="safety-input"
+                  data-key="patrolFindings"
+                  placeholder="例：ワイヤーロープ未点検（B中・門型）、ブリッジ未使用 など"
+                ></textarea>
+              </div>
+            </div>
 
-    <!-- 2. 安全成績 -->
-    <div class="safety-card">
-      <div class="safety-card-header">
-        <span>安全成績</span>
-        <span class="icon">✎</span>
-      </div>
-      <div class="safety-card-body">
-        <textarea
-          class="safety-input"
-          data-key="safetyRecord"
-          placeholder="例：連続無災害記録は○○○日です　など"
-        ></textarea>
-      </div>
-    </div>
+            <!-- 2. 安全成績 -->
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>安全成績</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <div class="safety-style-row">
+                  <label>
+                    文字サイズ
+                    <select class="safety-size" data-key="safetyRecord">
+                      <option value="12">小</option>
+                      <option value="13">標準</option>
+                      <option value="16">大</option>
+                      <option value="20">特大</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type="checkbox" class="safety-bold" data-key="safetyRecord" />
+                    太字
+                  </label>
+                </div>
+                <textarea
+                  class="safety-input"
+                  data-key="safetyRecord"
+                  placeholder="例：連続無災害記録は○○○日です　など"
+                ></textarea>
+              </div>
+            </div>
 
-    <!-- 3. 安全パトロール日程 -->
-    <div class="safety-card">
-      <div class="safety-card-header">
-        <span>安全パトロール日程</span>
-        <span class="icon">✎</span>
-      </div>
-      <div class="safety-card-body">
-        <textarea
-          class="safety-input"
-          data-key="patrolSchedule"
-          placeholder="例：1班 ○月○日（金）〜　といった日程を記入"
-        ></textarea>
-      </div>
-    </div>
+            <!-- 3. 安全パトロール日程 -->
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>安全パトロール日程</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <div class="safety-style-row">
+                  <label>
+                    文字サイズ
+                    <select class="safety-size" data-key="patrolSchedule">
+                      <option value="12">小</option>
+                      <option value="13">標準</option>
+                      <option value="16">大</option>
+                      <option value="20">特大</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type="checkbox" class="safety-bold" data-key="patrolSchedule" />
+                    太字
+                  </label>
+                </div>
+                <textarea
+                  class="safety-input"
+                  data-key="patrolSchedule"
+                  placeholder="例：1班 ○月○日（金）〜　といった日程を記入"
+                ></textarea>
+              </div>
+            </div>
 
-    <!-- 4. 長時間労働と健康障害防止 -->
-    <div class="safety-card">
-      <div class="safety-card-header">
-        <span>長時間労働と健康障害防止</span>
-        <span class="icon">✎</span>
-      </div>
-      <div class="safety-card-body">
-        <textarea
-          class="safety-input"
-          data-key="longWorkHealth"
-          placeholder="例：特別延長時間の上限・長時間労働者への面談予定 など"
-        ></textarea>
-      </div>
-    </div>
+            <!-- 4. 長時間労働と健康障害防止 -->
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>長時間労働と健康障害防止</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <div class="safety-style-row">
+                  <label>
+                    文字サイズ
+                    <select class="safety-size" data-key="longWorkHealth">
+                      <option value="12">小</option>
+                      <option value="13">標準</option>
+                      <option value="16">大</option>
+                      <option value="20">特大</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type="checkbox" class="safety-bold" data-key="longWorkHealth" />
+                    太字
+                  </label>
+                </div>
+                <textarea
+                  class="safety-input"
+                  data-key="longWorkHealth"
+                  placeholder="例：特別延長時間の上限・長時間労働者への面談予定 など"
+                ></textarea>
+              </div>
+            </div>
 
-    <!-- 5. 今月のワイヤー点検色 -->
-    <div class="safety-card">
-      <div class="safety-card-header">
-        <span>今月のワイヤー点検色</span>
-        <span class="icon">✎</span>
-      </div>
-      <div class="safety-card-body">
-        <textarea
-          class="safety-input"
-          data-key="wireCheckColor"
-          placeholder="例：今月の点検色は『黄色』です　など"
-        ></textarea>
-      </div>
-    </div>
+            <!-- 5. 今月のワイヤー点検色 -->
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>今月のワイヤー点検色</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <div class="safety-style-row">
+                  <label>
+                    文字サイズ
+                    <select class="safety-size" data-key="wireCheckColor">
+                      <option value="12">小</option>
+                      <option value="13">標準</option>
+                      <option value="16">大</option>
+                      <option value="20">特大</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type="checkbox" class="safety-bold" data-key="wireCheckColor" />
+                    太字
+                  </label>
+                </div>
+                <textarea
+                  class="safety-input"
+                  data-key="wireCheckColor"
+                  placeholder="例：今月の点検色は『黄色』です　など"
+                ></textarea>
+              </div>
+            </div>
 
-    <!-- 6. 産業医工場巡視より／健康情報 -->
-    <div class="safety-card">
-      <div class="safety-card-header">
-        <span>産業医工場巡視より／健康情報</span>
-        <span class="icon">✎</span>
-      </div>
-      <div class="safety-card-body">
-        <textarea
-          class="safety-input"
-          data-key="doctorComment"
-          placeholder="例：ノロウイルス・インフルエンザ対策のお願い　など"
-        ></textarea>
-      </div>
-    </div>
-  </div>
+            <!-- 6. 産業医工場巡視より／健康情報 -->
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>産業医工場巡視より／健康情報</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <div class="safety-style-row">
+                  <label>
+                    文字サイズ
+                    <select class="safety-size" data-key="doctorComment">
+                      <option value="12">小</option>
+                      <option value="13">標準</option>
+                      <option value="16">大</option>
+                      <option value="20">特大</option>
+                    </select>
+                  </label>
+                  <label>
+                    <input type="checkbox" class="safety-bold" data-key="doctorComment" />
+                    太字
+                  </label>
+                </div>
+                <textarea
+                  class="safety-input"
+                  data-key="doctorComment"
+                  placeholder="例：ノロウイルス・インフルエンザ対策のお願い　など"
+                ></textarea>
+              </div>
+            </div>
+          </div>
 
-  <div class="safety-save-row">
-    <button id="saveSafetyBoardButton" class="secondary">安全ボードを保存</button>
-    <span id="safetySaveStatus" class="status"></span>
-  </div>
-</section>
-
+          <div class="safety-save-row">
+            <button id="saveSafetyBoardButton" class="secondary">安全ボードを保存</button>
+            <span id="safetySaveStatus" class="status"></span>
+          </div>
+        </section>
 
         <footer>
           ※ 掲示内容と写真・安全ボードは、このPCのブラウザ（localStorage）内に保存されます。<br />
@@ -754,10 +918,11 @@
   </div>
 
   <script>
-    // ===== 掲示板用設定 =====
+    // ===== 定数・キー =====
     const STORAGE_KEY = "public_display_board_v1";
     const VIDEO_STORAGE_KEY = "company_board_video_url";
     const SAFETY_BOARD_KEY = "safety_board_v1";
+    const HEADER_COLOR_KEY = "company_board_header_color";
 
     // DOM参照（掲示板）
     const titleInput = document.getElementById("titleInput");
@@ -779,10 +944,12 @@
     // 安全ボード
     const safetyBoardPanel = document.getElementById("safetyBoardPanel");
     const safetyInputs = document.querySelectorAll(".safety-input");
+    const safetySizeControls = document.querySelectorAll(".safety-size");
+    const safetyBoldControls = document.querySelectorAll(".safety-bold");
     const saveSafetyBoardButton = document.getElementById("saveSafetyBoardButton");
     const safetySaveStatus = document.getElementById("safetySaveStatus");
 
-    // DOM参照（社内コンテンツ）
+    // 社内コンテンツ（動画）
     const toggleVideoSettingsButton = document.getElementById("toggleVideoSettings");
     const videoViewArea = document.getElementById("videoViewArea");
     const videoSettingsArea = document.getElementById("videoSettingsArea");
@@ -792,22 +959,30 @@
     const saveVideoUrlButton = document.getElementById("saveVideoUrlButton");
     const cancelVideoUrlButton = document.getElementById("cancelVideoUrlButton");
 
+    // ヘッダー系
+    const todayDateEl = document.getElementById("todayDate");
+    const toggleHeaderColorSettingsButton = document.getElementById("toggleHeaderColorSettings");
+    const headerColorSettings = document.getElementById("headerColorSettings");
+    const headerColorPicker = document.getElementById("headerColorPicker");
+    const headerColorPresetButtons = document.querySelectorAll(".header-color-btn");
+
     // データ
     let posts = loadPosts();
     let activeFilter = "all";
     let currentImageDataUrl = null;
     let formOpen = false;
 
+    let safetyBoard = loadSafetyBoard();
+
     // 動画URL
     let currentVideoUrl = loadVideoUrl();
-    renderVideoArea(currentVideoUrl);
 
-    // 安全ボード初期値
-    let safetyBoard = loadSafetyBoard();
+    // ===== 初期描画 =====
     applySafetyBoardToInputs();
-
-    // 初期描画
     renderList();
+    renderVideoArea(currentVideoUrl);
+    updateTodayDate();
+    initHeaderColor();
 
     // ===== 掲示板イベント =====
     addButton.addEventListener("click", handleAdd);
@@ -842,18 +1017,40 @@
       });
     });
 
-    // 安全ボード保存
+    // ===== 安全ボード：保存ボタン =====
     saveSafetyBoardButton.addEventListener("click", () => {
       safetyBoard = {};
       safetyInputs.forEach((input) => {
         const key = input.dataset.key;
-        safetyBoard[key] = input.value;
+        const sizeControl = document.querySelector(`.safety-size[data-key="${key}"]`);
+        const boldControl = document.querySelector(`.safety-bold[data-key="${key}"]`);
+
+        safetyBoard[key] = {
+          text: input.value,
+          size: sizeControl ? sizeControl.value : "13",
+          bold: boldControl ? boldControl.checked : false,
+        };
       });
       saveSafetyBoard(safetyBoard);
       safetySaveStatus.textContent = "保存しました。";
       setTimeout(() => {
         safetySaveStatus.textContent = "";
       }, 2000);
+    });
+
+    // サイズ変更／太字変更のたびに即反映
+    safetySizeControls.forEach((sel) => {
+      sel.addEventListener("change", () => {
+        const key = sel.dataset.key;
+        applySafetyStylesForKey(key);
+      });
+    });
+
+    safetyBoldControls.forEach((chk) => {
+      chk.addEventListener("change", () => {
+        const key = chk.dataset.key;
+        applySafetyStylesForKey(key);
+      });
     });
 
     // ===== 社内コンテンツイベント =====
@@ -888,6 +1085,28 @@
     cancelVideoUrlButton.addEventListener("click", () => {
       videoSettingsArea.classList.add("hidden");
       videoViewArea.classList.remove("hidden");
+    });
+
+    // ===== ヘッダー色設定イベント =====
+    toggleHeaderColorSettingsButton.addEventListener("click", () => {
+      headerColorSettings.classList.toggle("hidden");
+    });
+
+    if (headerColorPicker) {
+      headerColorPicker.addEventListener("input", (e) => {
+        const color = e.target.value;
+        setHeaderColor(color);
+      });
+    }
+
+    headerColorPresetButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const color = btn.dataset.color;
+        setHeaderColor(color);
+        if (headerColorPicker && /^#([0-9a-fA-F]{6})$/.test(color)) {
+          headerColorPicker.value = color;
+        }
+      });
     });
 
     // ===== 画像選択処理 =====
@@ -1129,8 +1348,8 @@
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
-      const hh = String(d.getHours()).padStart(2, "0");
-      const mm = String(d.getMinutes()).padStart(2, "0");
+      const hh = String(d.getHours() + 100).slice(-2);
+      const mm = String(d.getMinutes() + 100).slice(-2).slice(-2);
       return `${y}/${m}/${day} ${hh}:${mm}`;
     }
 
@@ -1241,10 +1460,97 @@
     function applySafetyBoardToInputs() {
       safetyInputs.forEach((input) => {
         const key = input.dataset.key;
-        if (key && safetyBoard[key]) {
-          input.value = safetyBoard[key];
+        const entry = safetyBoard[key];
+
+        let text = "";
+        let size = "13";
+        let bold = false;
+
+        if (typeof entry === "string") {
+          text = entry;
+        } else if (entry && typeof entry === "object") {
+          text = entry.text || "";
+          size = entry.size || "13";
+          bold = !!entry.bold;
         }
+
+        input.value = text;
+
+        const sizeControl = document.querySelector(`.safety-size[data-key="${key}"]`);
+        const boldControl = document.querySelector(`.safety-bold[data-key="${key}"]`);
+
+        if (sizeControl) sizeControl.value = size;
+        if (boldControl) boldControl.checked = bold;
+
+        applySafetyStylesForKey(key);
       });
+    }
+
+    function applySafetyStylesForKey(key) {
+      const input = document.querySelector(`.safety-input[data-key="${key}"]`);
+      if (!input) return;
+      const sizeControl = document.querySelector(`.safety-size[data-key="${key}"]`);
+      const boldControl = document.querySelector(`.safety-bold[data-key="${key}"]`);
+
+      const size = sizeControl ? sizeControl.value : "13";
+      const bold = boldControl ? boldControl.checked : false;
+
+      input.style.fontSize = size + "px";
+      input.style.fontWeight = bold ? "700" : "400";
+    }
+
+    // ===== 今日の日付表示 =====
+    function updateTodayDate() {
+      if (!todayDateEl) return;
+      const d = new Date();
+      const youbi = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
+      const text = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日（${youbi}）`;
+      todayDateEl.textContent = "本日：" + text;
+    }
+
+    // ===== ヘッダー色 =====
+    function initHeaderColor() {
+      let color = "#ffffff";
+      try {
+        const saved = localStorage.getItem(HEADER_COLOR_KEY);
+        if (saved) color = saved;
+      } catch (e) {
+        console.error(e);
+      }
+      setHeaderColor(color);
+      if (headerColorPicker && /^#([0-9a-fA-F]{6})$/.test(color)) {
+        headerColorPicker.value = color;
+      }
+    }
+
+    function setHeaderColor(color) {
+      if (!color || typeof color !== "string") return;
+      document.documentElement.style.setProperty("--header-bg", color);
+
+      // 明るさから文字色を自動決定
+      const isDark = isDarkColor(color);
+      const mainColor = isDark ? "#f9fafb" : "#111827";
+      const subColor = isDark ? "#e5e7eb" : "#6b7280";
+
+      document.documentElement.style.setProperty("--header-text-main", mainColor);
+      document.documentElement.style.setProperty("--header-text-sub", subColor);
+
+      try {
+        localStorage.setItem(HEADER_COLOR_KEY, color);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function isDarkColor(hex) {
+      const m = /^#?([0-9a-fA-F]{6})$/.exec(hex);
+      if (!m) return false;
+      const int = parseInt(m[1], 16);
+      const r = (int >> 16) & 255;
+      const g = (int >> 8) & 255;
+      const b = int & 255;
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness < 140;
     }
 
     // HTMLエスケープ
