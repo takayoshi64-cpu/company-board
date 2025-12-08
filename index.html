@@ -97,6 +97,18 @@
       border-bottom-color: var(--bg-color);
     }
 
+    /* ★安全掲示板タブだけ黄色にする★ */
+    .tab-safety {
+      color: #92400e;
+    }
+
+    .tab-safety.active {
+      background-color: #fef9c3;
+      color: #92400e;
+      border: 1px solid #facc15;
+      border-bottom-color: var(--bg-color);
+    }
+
     /* パネル */
     .panel {
       background-color: var(--panel-bg);
@@ -433,7 +445,7 @@
           <button class="tab" data-filter="management">管理部</button>
           <button class="tab" data-filter="factory">製造部</button>
           <button class="tab" data-filter="news">会社ニュース</button>
-          <button class="tab" data-filter="safety">安全掲示板</button>
+          <button class="tab tab-safety" data-filter="safety">安全掲示板</button>
         </nav>
 
         <!-- 入力パネル -->
@@ -636,11 +648,9 @@
     toggleVideoSettingsButton.addEventListener("click", () => {
       const isOpen = !videoSettingsArea.classList.contains("hidden");
       if (isOpen) {
-        // 設定閉じる
         videoSettingsArea.classList.add("hidden");
         videoViewArea.classList.remove("hidden");
       } else {
-        // 設定開く（現在値を入力欄に反映）
         videoUrlInput.value = currentVideoUrl || "";
         videoSettingsArea.classList.remove("hidden");
         videoViewArea.classList.add("hidden");
@@ -655,7 +665,6 @@
         saveVideoUrl("");
         renderVideoArea("");
       } else {
-        // URL自体はゆるく保存。埋め込みURLに出来るかどうかは renderVideoArea 側で判定
         currentVideoUrl = url;
         saveVideoUrl(url);
         renderVideoArea(url);
@@ -928,7 +937,6 @@
     }
 
     function renderVideoArea(url) {
-      // 既存のiframeなどをクリア
       videoFrameWrapper.innerHTML = "";
 
       if (!url) {
@@ -939,9 +947,10 @@
 
       const embedUrl = toYouTubeEmbedUrl(url);
       if (embedUrl) {
+        const id = getYouTubeId(url);
         const iframe = document.createElement("iframe");
         iframe.src =
-          embedUrl + "?autoplay=1&mute=1&loop=1&playlist=" + getYouTubeId(url);
+          embedUrl + "?autoplay=1&mute=1&loop=1" + (id ? "&playlist=" + id : "");
         iframe.allow =
           "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
         iframe.allowFullscreen = true;
@@ -949,7 +958,6 @@
         videoFrameWrapper.classList.remove("hidden");
         videoPlaceholder.classList.add("hidden");
       } else {
-        // 埋め込みできない場合（チャンネルURLなど）はプレースホルダ表示のまま
         videoFrameWrapper.classList.add("hidden");
         videoPlaceholder.classList.remove("hidden");
       }
