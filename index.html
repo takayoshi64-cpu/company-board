@@ -27,7 +27,7 @@
 
     /* ★安全掲示板タブ選択時だけ、全体の背景色を黄色にする★ */
     body.safety-mode {
-      background-color: #facc15; /* 安全掲示板用のハッキリ黄色 */
+      background-color: #facc15; /* ご指定の黄色 */
     }
 
     .page {
@@ -103,7 +103,7 @@
       border-bottom-color: var(--bg-color);
     }
 
-    /* ★安全掲示板タブだけ黄色系にする★ */
+    /* 安全掲示板タブだけ少し強調 */
     .tab-safety {
       color: #92400e;
     }
@@ -344,6 +344,80 @@
       color: var(--text-sub);
     }
 
+    /* ===== 安全掲示板ボード（安全タブのときだけ表示） ===== */
+    .safety-board-panel {
+      margin-top: 4px;
+    }
+
+    .safety-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .safety-card {
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #111827;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 140px;
+    }
+
+    .safety-card-header {
+      padding: 6px 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .safety-card-header span.icon {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .safety-card-body {
+      background-color: #ffffff;
+      color: #111827;
+      padding: 8px 10px;
+      flex: 1;
+    }
+
+    .safety-card-body textarea {
+      width: 100%;
+      height: 100%;
+      min-height: 80px;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 4px 6px;
+      resize: vertical;
+    }
+
+    .safety-card-body textarea:focus {
+      outline: none;
+      border-color: #f97316;
+      box-shadow: 0 0 0 1px #fed7aa;
+    }
+
+    .safety-save-row {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .safety-save-row .status {
+      font-size: 11px;
+      color: #374151;
+    }
+
     /* サイド：社内コンテンツ */
     .side-header {
       display: flex;
@@ -515,8 +589,79 @@
           <div id="listContainer" class="list-container"></div>
         </section>
 
+        <!-- ★安全掲示板ボード：安全タブのときだけ表示★ -->
+        <section id="safetyBoardPanel" class="panel safety-board-panel hidden">
+          <h2>安全掲示板ボード</h2>
+          <p class="help-text">
+            安全パトロールの指摘事項・安全成績・産業医コメントなどを、月単位でまとめて掲示するエリアです（このPCに保存されます）。
+          </p>
+
+          <div class="safety-grid">
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>安全パトロールの指摘事項</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <textarea
+                  class="safety-input"
+                  data-key="patrolFindings"
+                  placeholder="例：ワイヤーロープ未点検（B中・門型）、ブリッジ未使用 など"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>安全成績</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <textarea
+                  class="safety-input"
+                  data-key="safetyRecord"
+                  placeholder="例：連続無災害記録は○○○日です　など"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>安全パトロール日程</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <textarea
+                  class="safety-input"
+                  data-key="patrolSchedule"
+                  placeholder="例：1班 ○月○日（金）〜　といった日程を記入"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="safety-card">
+              <div class="safety-card-header">
+                <span>産業医工場巡視より／健康情報</span>
+                <span class="icon">✎</span>
+              </div>
+              <div class="safety-card-body">
+                <textarea
+                  class="safety-input"
+                  data-key="doctorComment"
+                  placeholder="例：ノロウイルス・インフルエンザ対策のお願い　など"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="safety-save-row">
+            <button id="saveSafetyBoardButton" class="secondary">安全ボードを保存</button>
+            <span id="safetySaveStatus" class="status"></span>
+          </div>
+        </section>
+
         <footer>
-          ※ 掲示内容と写真は、このPCのブラウザ（localStorage）内に保存されます。<br />
+          ※ 掲示内容と写真・安全ボードは、このPCのブラウザ（localStorage）内に保存されます。<br />
           ※ 写真を大量に保存すると容量制限に達する場合があります。
         </footer>
       </div>
@@ -576,6 +721,7 @@
     // ===== 掲示板用設定 =====
     const STORAGE_KEY = "public_display_board_v1";
     const VIDEO_STORAGE_KEY = "company_board_video_url";
+    const SAFETY_BOARD_KEY = "safety_board_v1";
 
     // DOM参照（掲示板）
     const titleInput = document.getElementById("titleInput");
@@ -593,6 +739,12 @@
     const tabs = document.querySelectorAll(".tab");
     const postPanel = document.getElementById("postPanel");
     const toggleFormButton = document.getElementById("toggleFormButton");
+
+    // 安全ボード
+    const safetyBoardPanel = document.getElementById("safetyBoardPanel");
+    const safetyInputs = document.querySelectorAll(".safety-input");
+    const saveSafetyBoardButton = document.getElementById("saveSafetyBoardButton");
+    const safetySaveStatus = document.getElementById("safetySaveStatus");
 
     // DOM参照（社内コンテンツ）
     const toggleVideoSettingsButton = document.getElementById("toggleVideoSettings");
@@ -613,6 +765,10 @@
     // 動画URL
     let currentVideoUrl = loadVideoUrl();
     renderVideoArea(currentVideoUrl);
+
+    // 安全ボード初期値
+    let safetyBoard = loadSafetyBoard();
+    applySafetyBoardToInputs();
 
     // 初期描画
     renderList();
@@ -648,6 +804,20 @@
         activeFilter = tab.dataset.filter;
         renderList();
       });
+    });
+
+    // 安全ボード保存
+    saveSafetyBoardButton.addEventListener("click", () => {
+      safetyBoard = {};
+      safetyInputs.forEach((input) => {
+        const key = input.dataset.key;
+        safetyBoard[key] = input.value;
+      });
+      saveSafetyBoard(safetyBoard);
+      safetySaveStatus.textContent = "保存しました。";
+      setTimeout(() => {
+        safetySaveStatus.textContent = "";
+      }, 2000);
     });
 
     // ===== 社内コンテンツイベント =====
@@ -796,8 +966,9 @@
     }
 
     function renderList() {
-      // ★タブ状態に応じて背景色を切り替え
+      // 背景色＆安全ボードの表示切り替え
       updateSafetyBackground();
+      updateSafetyBoardVisibility();
 
       listContainer.innerHTML = "";
 
@@ -927,12 +1098,21 @@
       return `${y}/${m}/${day} ${hh}:${mm}`;
     }
 
-    // ★安全掲示板タブ選択中かどうかで body にクラス付け替え
+    // 安全タブのとき背景色 ON/OFF
     function updateSafetyBackground() {
       if (activeFilter === "safety") {
         document.body.classList.add("safety-mode");
       } else {
         document.body.classList.remove("safety-mode");
+      }
+    }
+
+    // 安全ボードの表示切り替え
+    function updateSafetyBoardVisibility() {
+      if (activeFilter === "safety") {
+        safetyBoardPanel.classList.remove("hidden");
+      } else {
+        safetyBoardPanel.classList.add("hidden");
       }
     }
 
@@ -1002,6 +1182,35 @@
       return "https://www.youtube.com/embed/" + id;
     }
 
+    // ===== 安全ボード保存／読み込み =====
+    function loadSafetyBoard() {
+      try {
+        const raw = localStorage.getItem(SAFETY_BOARD_KEY);
+        if (!raw) return {};
+        return JSON.parse(raw);
+      } catch (e) {
+        console.error(e);
+        return {};
+      }
+    }
+
+    function saveSafetyBoard(data) {
+      try {
+        localStorage.setItem(SAFETY_BOARD_KEY, JSON.stringify(data));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function applySafetyBoardToInputs() {
+      safetyInputs.forEach((input) => {
+        const key = input.dataset.key;
+        if (key && safetyBoard[key]) {
+          input.value = safetyBoard[key];
+        }
+      });
+    }
+
     // HTMLエスケープ
     function escapeHtml(str) {
       if (!str) return "";
@@ -1009,7 +1218,7 @@
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;/")
+        .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
     }
   </script>
