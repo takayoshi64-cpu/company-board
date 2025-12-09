@@ -183,10 +183,10 @@
       background-color: #fef9c3;
       color: #92400e;
     }
-   .badge-dept-manner {
-  background-color: #e0e7ff; /* 薄い紫 */
-  color: #4338ca;            /* 濃いめの紫 */
-}
+    .badge-dept-manner {
+      background-color: #e0e7ff;
+      color: #4338ca;
+    }
     .badge-important {
       border: 1px solid #b91c1c;
       color: #b91c1c;
@@ -443,14 +443,14 @@
       <div>
         <section class="panel" id="boardPanel">
           <h2>掲示一覧</h2>
-       <div class="tabs">
-  <button class="tab-btn active" data-tab="all">全体</button>
-  <button class="tab-btn" data-tab="management">管理部</button>
-  <button class="tab-btn" data-tab="factory">製造部</button>
-  <button class="tab-btn" data-tab="news">会社ニュース</button>
-  <button class="tab-btn" data-tab="safety">安全掲示板</button>
-  <button class="tab-btn" data-tab="manner">職場マナー</button>
-</div>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="all">全体</button>
+            <button class="tab-btn" data-tab="management">管理部</button>
+            <button class="tab-btn" data-tab="factory">製造部</button>
+            <button class="tab-btn" data-tab="news">会社ニュース</button>
+            <button class="tab-btn" data-tab="safety">安全掲示板</button>
+            <button class="tab-btn" data-tab="manner">職場マナー</button>
+          </div>
 
           <div id="listContainer" class="list-container"></div>
 
@@ -593,21 +593,20 @@
 
   <!-- ===== Firebase & アプリロジック ===== -->
   <script type="module">
-    // ===== Firebase SDK 読み込み =====
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-  getFirestore,
-  collection,
-  addDoc,
-  query,
-  orderBy,
-  onSnapshot,
-  serverTimestamp,
-  doc,
-  setDoc,
-  getDoc,
-  deleteDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      query,
+      orderBy,
+      onSnapshot,
+      serverTimestamp,
+      doc,
+      setDoc,
+      getDoc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import {
       getStorage,
       ref,
@@ -615,7 +614,6 @@
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    // ===== あなたの Firebase 設定 =====
     const firebaseConfig = {
       apiKey: "AIzaSyAtY0kWxalO0B88AwpQU6bF8B4xxeFh5qc",
       authDomain: "company-board-e9c21.firebaseapp.com",
@@ -633,28 +631,9 @@
     // ===== DOM 参照 =====
     const todayText = document.getElementById("todayText");
     const mainHeader = document.getElementById("mainHeader");
-    const mainLayout = document.getElementById("mainLayout");
     const boardPanel = document.getElementById("boardPanel");
     const listContainer = document.getElementById("listContainer");
     const tabs = document.querySelectorAll(".tab-btn");
-    // ===== タブ切り替え =====
-tabs.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    // 見た目のアクティブ切り替え
-    tabs.forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-
-    // タブの種類を更新
-    currentTab = btn.dataset.tab;
-
-    // 安全掲示板の背景変化など
-    updateSafetyBackground();
-
-    // 再描画
-    renderList();
-  });
-});
-
     const safetyExtraWrapper = document.getElementById("safetyExtraWrapper");
 
     const openNewPostBtn = document.getElementById("openNewPost");
@@ -714,7 +693,8 @@ tabs.forEach((btn) => {
       } else {
         boardPanel.style.backgroundColor = "var(--panel-bg)";
       }
-      safetyExtraWrapper.style.display = currentTab === "safety" ? "block" : "none";
+      safetyExtraWrapper.style.display =
+        currentTab === "safety" ? "block" : "none";
     }
 
     // ===== モーダル制御 =====
@@ -732,22 +712,24 @@ tabs.forEach((btn) => {
         settingsModalBackdrop.style.display = "none";
       }
     }
+
     openNewPostBtn.addEventListener("click", () => openModal("newPost"));
     openSettingsBtn.addEventListener("click", () => openModal("settings"));
-    
+
     newPostModalBackdrop.addEventListener("click", (e) => {
       if (e.target === newPostModalBackdrop) closeModal("newPost");
     });
     settingsModalBackdrop.addEventListener("click", (e) => {
       if (e.target === settingsModalBackdrop) closeModal("settings");
     });
-// すべての data-close ボタンでモーダルを閉じる
-document.querySelectorAll("[data-close]").forEach((el) => {
-  el.addEventListener("click", () => {
-    const target = el.dataset.close;
-    if (target) closeModal(target);
-  });
-});
+
+    // data-close付きボタンでモーダルを閉じる
+    document.querySelectorAll("[data-close]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const target = el.dataset.close;
+        if (target) closeModal(target);
+      });
+    });
 
     // ===== 画像プレビュー =====
     imageInput.addEventListener("change", () => {
@@ -763,13 +745,14 @@ document.querySelectorAll("[data-close]").forEach((el) => {
       imagePreview.appendChild(img);
     });
 
-    // ===== 投稿処理（Firestore + Storage） =====
+    // ===== 投稿処理 =====
     submitPostBtn.addEventListener("click", async () => {
       const title = titleInput.value.trim() || "（無題）";
       const body = bodyInput.value.trim();
       const dept = deptInput.value;
       const important = importantInput.value === "important";
       const author = authorInput.value.trim();
+
       if (!body) {
         alert("本文を入力してください。");
         return;
@@ -814,53 +797,38 @@ document.querySelectorAll("[data-close]").forEach((el) => {
       }
     });
 
-    // ===== Firestore から投稿一覧をリアルタイム取得 =====
+    // ===== 投稿一覧（リアルタイム） =====
     const postsQuery = query(
       collection(db, "posts"),
       orderBy("createdAt", "desc")
     );
+
     onSnapshot(postsQuery, (snapshot) => {
-      posts = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
+      posts = snapshot.docs.map((docSnap) => ({
+        id: docSnap.id,
+        ...docSnap.data()
       }));
       renderList();
     });
 
- function renderList() {
-  listContainer.innerHTML = "";
+    function renderList() {
+      listContainer.innerHTML = "";
 
-  const filtered = posts.filter((p) => {
-    // （もし削除フラグを使っている場合はここで除外）
-    if (p.deleted) return false;
+      const filtered = posts.filter((p) => {
+        if (p.deleted) return false;
 
-    if (currentTab === "all") {
-      // 全体タブでは「職場マナー」だけ除外
-      return p.dept !== "manner";
-    }
-    // それ以外のタブは、その部署だけ表示
-    return p.dept === currentTab;
-  });
-
-  if (!filtered.length) {
-    const p = document.createElement("p");
-    p.className = "empty";
-    p.textContent = "まだ掲示はありません。新規投稿ボタンから追加してください。";
-    listContainer.appendChild(p);
-    return;
-  }
-
-  filtered.forEach((p) => {
-    // ここから下は、元の item 描画ロジックそのままでOK
-    // item / header / body / 画像 / 削除ボタン… の処理
-    // （今使っているコードをそのまま残してください）
-  });
-}
+        if (currentTab === "all") {
+          // 全体タブでは「職場マナー」を除外
+          return p.dept !== "manner";
+        }
+        return p.dept === currentTab;
+      });
 
       if (!filtered.length) {
         const p = document.createElement("p");
         p.className = "empty";
-        p.textContent = "まだ掲示はありません。新規投稿ボタンから追加してください。";
+        p.textContent =
+          "まだ掲示はありません。新規投稿ボタンから追加してください。";
         listContainer.appendChild(p);
         return;
       }
@@ -936,48 +904,50 @@ document.querySelectorAll("[data-close]").forEach((el) => {
       });
     }
 
- async function handleDeletePost(id) {
-  if (!confirm("この掲示を削除しますか？")) return;
-  try {
-    await deleteDoc(doc(db, "posts", id)); // ← Firestore から完全に削除
-  } catch (e) {
-    console.error(e);
-    alert("削除時にエラーが発生しました。");
-  }
-}
+    async function handleDeletePost(id) {
+      if (!confirm("この掲示を削除しますか？")) return;
+      try {
+        await deleteDoc(doc(db, "posts", id));
+      } catch (e) {
+        console.error(e);
+        alert("削除時にエラーが発生しました。");
+      }
+    }
 
-   function getDeptLabel(dept) {
-  switch (dept) {
-    case "management":
-      return "管理部";
-    case "factory":
-      return "製造部";
-    case "news":
-      return "会社ニュース";
-    case "safety":
-      return "安全掲示板";
-    case "manner":
-      return "職場マナー";
-    default:
-      return "その他";
-  }
-}
+    function getDeptLabel(dept) {
+      switch (dept) {
+        case "management":
+          return "管理部";
+        case "factory":
+          return "製造部";
+        case "news":
+          return "会社ニュース";
+        case "safety":
+          return "安全掲示板";
+        case "manner":
+          return "職場マナー";
+        default:
+          return "その他";
+      }
+    }
+
     function getDeptBadgeClass(dept) {
-  switch (dept) {
-    case "management":
-      return "badge-dept-management";
-    case "factory":
-      return "badge-dept-factory";
-    case "news":
-      return "badge-dept-news";
-    case "safety":
-      return "badge-dept-safety";
-    case "manner":
-      return "badge-dept-manner";
-    default:
-      return "";
-  }
-}
+      switch (dept) {
+        case "management":
+          return "badge-dept-management";
+        case "factory":
+          return "badge-dept-factory";
+        case "news":
+          return "badge-dept-news";
+        case "safety":
+          return "badge-dept-safety";
+        case "manner":
+          return "badge-dept-manner";
+        default:
+          return "";
+      }
+    }
+
     function formatDateTime(d) {
       if (!d || isNaN(d.getTime())) return "";
       const y = d.getFullYear();
@@ -987,6 +957,7 @@ document.querySelectorAll("[data-close]").forEach((el) => {
       const mm = String(d.getMinutes()).padStart(2, "0");
       return `${y}/${m}/${day} ${hh}:${mm}`;
     }
+
     function escapeHtml(str) {
       if (!str) return "";
       return String(str)
@@ -1023,7 +994,6 @@ document.querySelectorAll("[data-close]").forEach((el) => {
     function toEmbedUrl(url) {
       if (!url) return "";
       try {
-        // watch?v=xxxx or youtu.be/xxxx を embed に変換
         if (url.includes("watch?v=")) {
           const u = new URL(url);
           const v = u.searchParams.get("v");
@@ -1034,7 +1004,6 @@ document.querySelectorAll("[data-close]").forEach((el) => {
           const idPart = parts[1].split(/[?&]/)[0];
           if (idPart) return `https://www.youtube.com/embed/${idPart}`;
         }
-        // それ以外はそのまま
         return url;
       } catch {
         return url;
