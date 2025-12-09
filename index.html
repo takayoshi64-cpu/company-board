@@ -107,7 +107,8 @@
       gap: 6px;
       margin-bottom: 6px;
     }
-    .tab-btn {
+    .tab-btn,
+    .tab-link {
       cursor: pointer;
       border-radius: 999px;
       padding: 4px 10px;
@@ -115,6 +116,10 @@
       background: #f9fafb;
       font-size: 12px;
       color: #374151;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
     .tab-btn.active {
       background: var(--accent);
@@ -334,6 +339,11 @@
       font-size: 15px;
       margin-bottom: 4px;
     }
+    .content-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
     .video-frame {
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -352,6 +362,11 @@
       width: 100%;
       height: 100%;
       border: none;
+    }
+    .video-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     /* ===== 安全掲示板カード ===== */
@@ -450,6 +465,15 @@
             <button class="tab-btn" data-tab="news">会社ニュース</button>
             <button class="tab-btn" data-tab="safety">安全掲示板</button>
             <button class="tab-btn" data-tab="manner">職場マナー</button>
+            <!-- 会社サイトへのタブリンク（別タブで開く） -->
+            <a
+              class="tab-link"
+              href="https://terada-tekkousho.net/home"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              会社サイト
+            </a>
           </div>
 
           <div id="listContainer" class="list-container"></div>
@@ -498,16 +522,21 @@
         </section>
 
         <footer>
-          ※ 掲示内容・安全掲示板カード・動画設定・ヘッダー色は Firebase に保存され、全PCで共有されます。
+          ※ 掲示内容・安全掲示板カード・社内コンテンツ・ヘッダー色は Firebase に保存され、全PCで共有されます。
         </footer>
       </div>
 
-      <!-- ===== 右側：社内コンテンツ ===== -->
+      <!-- ===== 右側：社内コンテンツ（最大2つ） ===== -->
       <aside>
         <section class="panel">
           <h2 class="side-panel-title">社内コンテンツ</h2>
-          <div id="videoFrame" class="video-frame">
-            設定画面から YouTube の共有URL を登録すると、ここに動画が表示されます。
+          <div id="contentContainer" class="content-grid">
+            <div class="video-frame" data-slot="1">
+              コンテンツ1は設定画面から登録できます。（画像URL or YouTube共有URL）
+            </div>
+            <div class="video-frame" data-slot="2">
+              コンテンツ2は設定画面から登録できます。（任意）
+            </div>
           </div>
         </section>
       </aside>
@@ -574,15 +603,20 @@
         <input id="headerColorInput" type="color" />
       </div>
       <div class="form-row">
-        <label for="youtubeUrlInput">YouTube の共有URL</label>
+        <label for="contentUrl1Input">コンテンツ1のURL（画像 or YouTube）</label>
         <input
-          id="youtubeUrlInput"
+          id="contentUrl1Input"
           type="text"
-          placeholder="例：https://www.youtube.com/watch?v=xxxxxxx"
+          placeholder="例：https://www.youtube.com/watch?v=xxxxxxx または https://.../image.jpg"
         />
-        <small style="font-size:11px;color:var(--text-sub);">
-          ※ 共有ボタンからコピーしたURLを貼り付けてください。
-        </small>
+      </div>
+      <div class="form-row">
+        <label for="contentUrl2Input">コンテンツ2のURL（任意・画像 or YouTube）</label>
+        <input
+          id="contentUrl2Input"
+          type="text"
+          placeholder="例：2つ目の画像/動画があれば入力"
+        />
       </div>
       <div class="button-row">
         <button class="secondary" data-close="settings">閉じる</button>
@@ -618,7 +652,7 @@
       apiKey: "AIzaSyAtY0kWxalO0B88AwpQU6bF8B4xxeFh5qc",
       authDomain: "company-board-e9c21.firebaseapp.com",
       projectId: "company-board-e9c21",
-      storageBucket: "company-board-e9c21.firebasestorage.app",
+      storageBucket: "company-board-e9c21.appspot.com",
       messagingSenderId: "87763888182",
       appId: "1:87763888182:web:9238e51b45c7b94b6e5097",
       measurementId: "G-NTRC5HCN0H"
@@ -651,9 +685,10 @@
     const submitPostBtn = document.getElementById("submitPost");
 
     const headerColorInput = document.getElementById("headerColorInput");
-    const youtubeUrlInput = document.getElementById("youtubeUrlInput");
-    const saveSettingsBtn = document.getElementById("saveSettings");
-    const videoFrame = document.getElementById("videoFrame");
+    const contentUrl1Input = document.getElementById("contentUrl1Input");
+    const contentUrl2Input = document.getElementById("contentUrl2Input");
+    const frame1 = document.querySelector('.video-frame[data-slot="1"]');
+    const frame2 = document.querySelector('.video-frame[data-slot="2"]');
 
     const safety1Content = document.getElementById("safety1Content");
     const safety2Content = document.getElementById("safety2Content");
@@ -663,7 +698,8 @@
     let currentTab = "all";
     let currentSettings = {
       headerColor: null,
-      youtubeUrl: ""
+      contentUrl1: "",
+      contentUrl2: ""
     };
 
     // ===== 日付表示 =====
@@ -816,7 +852,6 @@
 
       const filtered = posts.filter((p) => {
         if (p.deleted) return false;
-
         if (currentTab === "all") {
           // 全体タブでは「職場マナー」を除外
           return p.dept !== "manner";
@@ -968,7 +1003,7 @@
         .replace(/'/g, "&#39;");
     }
 
-    // ===== 設定（ヘッダー色・YouTube URL） =====
+    // ===== 設定（ヘッダー色・コンテンツURL） =====
     const settingsDocRef = doc(db, "config", "general");
 
     async function loadSettings() {
@@ -976,7 +1011,9 @@
       if (!snap.exists()) return;
       const data = snap.data();
       currentSettings.headerColor = data.headerColor || null;
-      currentSettings.youtubeUrl = data.youtubeUrl || "";
+      // 互換性のため、古い youtubeUrl があれば contentUrl1 として扱う
+      currentSettings.contentUrl1 = data.contentUrl1 || data.youtubeUrl || "";
+      currentSettings.contentUrl2 = data.contentUrl2 || "";
       applySettingsToUI();
     }
 
@@ -987,57 +1024,95 @@
       headerColorInput.value =
         currentSettings.headerColor || "#1f2933";
 
-      youtubeUrlInput.value = currentSettings.youtubeUrl || "";
-      updateVideoFrame(currentSettings.youtubeUrl || "");
+      contentUrl1Input.value = currentSettings.contentUrl1 || "";
+      contentUrl2Input.value = currentSettings.contentUrl2 || "";
+      updateContentsFrame(
+        currentSettings.contentUrl1 || "",
+        currentSettings.contentUrl2 || ""
+      );
     }
 
-    function toEmbedUrl(url) {
+    function isImageUrl(url) {
+      try {
+        const u = new URL(url);
+        return /\.(png|jpe?g|gif|webp)$/i.test(u.pathname);
+      } catch {
+        return false;
+      }
+    }
+
+    function toEmbedUrlWithLoop(url) {
       if (!url) return "";
       try {
+        let videoId = "";
         if (url.includes("watch?v=")) {
           const u = new URL(url);
           const v = u.searchParams.get("v");
-          if (v) return `https://www.youtube.com/embed/${v}`;
-        }
-        if (url.includes("youtu.be/")) {
+          if (v) videoId = v;
+        } else if (url.includes("youtu.be/")) {
           const parts = url.split("youtu.be/");
-          const idPart = parts[1].split(/[?&]/)[0];
-          if (idPart) return `https://www.youtube.com/embed/${idPart}`;
+          videoId = parts[1].split(/[?&]/)[0];
         }
+        if (videoId) {
+          return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+        }
+        // それ以外はそのまま
         return url;
       } catch {
         return url;
       }
     }
 
-    function updateVideoFrame(url) {
-      videoFrame.innerHTML = "";
+    function updateFrameElement(frameEl, url, label) {
+      frameEl.innerHTML = "";
       if (!url) {
-        videoFrame.textContent =
-          "設定画面から YouTube の共有URL を登録すると、ここに動画が表示されます。";
+        frameEl.textContent = label;
         return;
       }
-      const embed = toEmbedUrl(url);
-      const iframe = document.createElement("iframe");
-      iframe.src = embed;
-      iframe.allow =
-        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-      iframe.allowFullscreen = true;
-      videoFrame.appendChild(iframe);
+
+      if (isImageUrl(url)) {
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = "社内コンテンツ画像";
+        frameEl.appendChild(img);
+      } else {
+        const embed = toEmbedUrlWithLoop(url);
+        const iframe = document.createElement("iframe");
+        iframe.src = embed;
+        iframe.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+        iframe.allowFullscreen = true;
+        frameEl.appendChild(iframe);
+      }
+    }
+
+    function updateContentsFrame(url1, url2) {
+      updateFrameElement(
+        frame1,
+        url1,
+        "コンテンツ1は設定画面から登録できます。（画像URL or YouTube共有URL）"
+      );
+      updateFrameElement(
+        frame2,
+        url2,
+        "コンテンツ2は設定画面から登録できます。（任意）"
+      );
     }
 
     saveSettingsBtn.addEventListener("click", async () => {
       const headerColor = headerColorInput.value || "#1f2933";
-      const youtubeUrl = youtubeUrlInput.value.trim();
+      const contentUrl1 = contentUrl1Input.value.trim();
+      const contentUrl2 = contentUrl2Input.value.trim();
 
       try {
         await setDoc(
           settingsDocRef,
-          { headerColor, youtubeUrl },
+          { headerColor, contentUrl1, contentUrl2 },
           { merge: true }
         );
         currentSettings.headerColor = headerColor;
-        currentSettings.youtubeUrl = youtubeUrl;
+        currentSettings.contentUrl1 = contentUrl1;
+        currentSettings.contentUrl2 = contentUrl2;
         applySettingsToUI();
         alert("設定を保存しました。");
         closeModal("settings");
