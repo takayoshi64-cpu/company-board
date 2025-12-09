@@ -100,7 +100,7 @@
       padding-bottom: 4px;
     }
 
-    /* ===== タブ（部署フィルタ） ===== */
+    /* ===== タブ ===== */
     .tabs {
       display: flex;
       flex-wrap: wrap;
@@ -398,6 +398,21 @@
       padding: 6px 10px;
       font-size: 13px;
       font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .safety-title-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .safety-title-input:focus {
+      outline: none;
     }
     .safety-card-body {
       padding: 8px 10px;
@@ -432,6 +447,19 @@
     .safety-medium { font-size: 14px; }
     .safety-large { font-size: 18px; }
 
+    .safety-dynamic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0 4px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .safety-dynamic-header button {
+      font-size: 11px;
+      padding: 3px 8px;
+    }
+
     footer {
       margin-top: 8px;
       font-size: 11px;
@@ -465,7 +493,6 @@
             <button class="tab-btn" data-tab="news">会社ニュース</button>
             <button class="tab-btn" data-tab="safety">安全掲示板</button>
             <button class="tab-btn" data-tab="manner">職場マナー</button>
-            <!-- 会社サイトへのタブリンク（別タブで開く） -->
             <a
               class="tab-link"
               href="https://terada-tekkousho.net/home"
@@ -478,14 +505,16 @@
 
           <div id="listContainer" class="list-container"></div>
 
-          <!-- 安全掲示板専用カード -->
+          <!-- 安全掲示板専用カード（固定2つ） -->
           <div id="safetyExtraWrapper" class="safety-extra-wrapper" style="display:none;">
             <div class="safety-extra-grid">
               <!-- 長時間労働と健康障害防止 -->
-              <div class="safety-card">
-                <div class="safety-card-header">長時間労働と健康障害防止</div>
+              <div class="safety-card" data-fixed="1">
+                <div class="safety-card-header">
+                  <span>長時間労働と健康障害防止</span>
+                </div>
                 <div class="safety-card-body">
-                  <div class="safety-toolbar">
+                  <div class="safety-toolbar safety-toolbar-fixed">
                     <button data-target="safety1" data-size="small" class="secondary">小</button>
                     <button data-target="safety1" data-size="medium" class="secondary">中</button>
                     <button data-target="safety1" data-size="large" class="secondary">大</button>
@@ -500,10 +529,12 @@
                 </div>
               </div>
               <!-- 今月のワイヤー点検色 -->
-              <div class="safety-card">
-                <div class="safety-card-header">今月のワイヤー点検色</div>
+              <div class="safety-card" data-fixed="2">
+                <div class="safety-card-header">
+                  <span>今月のワイヤー点検色</span>
+                </div>
                 <div class="safety-card-body">
-                  <div class="safety-toolbar">
+                  <div class="safety-toolbar safety-toolbar-fixed">
                     <button data-target="safety2" data-size="small" class="secondary">小</button>
                     <button data-target="safety2" data-size="medium" class="secondary">中</button>
                     <button data-target="safety2" data-size="large" class="secondary">大</button>
@@ -518,6 +549,13 @@
                 </div>
               </div>
             </div>
+
+            <!-- 動的に追加できる安全ボックス -->
+            <div class="safety-dynamic-header">
+              <span>その他の安全ボックス</span>
+              <button id="addSafetyCardBtn" class="secondary">＋ ボックス追加</button>
+            </div>
+            <div id="dynamicSafetyCards" class="safety-extra-grid"></div>
           </div>
         </section>
 
@@ -692,6 +730,8 @@
 
     const safety1Content = document.getElementById("safety1Content");
     const safety2Content = document.getElementById("safety2Content");
+    const addSafetyCardBtn = document.getElementById("addSafetyCardBtn");
+    const dynamicSafetyCardsContainer = document.getElementById("dynamicSafetyCards");
 
     // ===== 状態 =====
     let posts = [];
@@ -701,6 +741,7 @@
       contentUrl1: "",
       contentUrl2: ""
     };
+    let dynamicSafetyCards = []; // {id, title, html, sizeClass, bold}
 
     // ===== 日付表示 =====
     function updateToday() {
@@ -759,7 +800,6 @@
       if (e.target === settingsModalBackdrop) closeModal("settings");
     });
 
-    // data-close付きボタンでモーダルを閉じる
     document.querySelectorAll("[data-close]").forEach((el) => {
       el.addEventListener("click", () => {
         const target = el.dataset.close;
@@ -853,8 +893,7 @@
       const filtered = posts.filter((p) => {
         if (p.deleted) return false;
         if (currentTab === "all") {
-          // 全体タブでは「職場マナー」を除外
-          return p.dept !== "manner";
+          return p.dept !== "manner"; // 全体には職場マナーを出さない
         }
         return p.dept === currentTab;
       });
@@ -1011,7 +1050,6 @@
       if (!snap.exists()) return;
       const data = snap.data();
       currentSettings.headerColor = data.headerColor || null;
-      // 互換性のため、古い youtubeUrl があれば contentUrl1 として扱う
       currentSettings.contentUrl1 = data.contentUrl1 || data.youtubeUrl || "";
       currentSettings.contentUrl2 = data.contentUrl2 || "";
       applySettingsToUI();
@@ -1056,7 +1094,6 @@
         if (videoId) {
           return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
         }
-        // それ以外はそのまま
         return url;
       } catch {
         return url;
@@ -1099,6 +1136,7 @@
       );
     }
 
+    const saveSettingsBtn = document.getElementById("saveSettings");
     saveSettingsBtn.addEventListener("click", async () => {
       const headerColor = headerColorInput.value || "#1f2933";
       const contentUrl1 = contentUrl1Input.value.trim();
@@ -1122,13 +1160,18 @@
       }
     });
 
-    // ===== 安全掲示板カードの保存 =====
+    // ===== 安全掲示板カード =====
     const safetyDocRef = doc(db, "config", "safety");
 
     async function loadSafetyCards() {
       const snap = await getDoc(safetyDocRef);
-      if (!snap.exists()) return;
+      if (!snap.exists()) {
+        dynamicSafetyCards = [];
+        renderDynamicSafetyCards();
+        return;
+      }
       const data = snap.data();
+
       if (data.safety1Html) {
         safety1Content.innerHTML = data.safety1Html;
       }
@@ -1149,36 +1192,186 @@
       if (data.safety2Bold) {
         safety2Content.style.fontWeight = "bold";
       }
+
+      dynamicSafetyCards = data.dynamicCards || [];
+      renderDynamicSafetyCards();
     }
 
-    function handleSafetyToolbarClick(e) {
+    function renderDynamicSafetyCards() {
+      dynamicSafetyCardsContainer.innerHTML = "";
+      if (!dynamicSafetyCards.length) return;
+
+      dynamicSafetyCards.forEach((card) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "safety-card";
+        wrapper.dataset.id = card.id;
+
+        const header = document.createElement("div");
+        header.className = "safety-card-header";
+
+        const titleInputEl = document.createElement("input");
+        titleInputEl.type = "text";
+        titleInputEl.className = "safety-title-input";
+        titleInputEl.value = card.title || "安全メッセージ";
+        header.appendChild(titleInputEl);
+
+        const body = document.createElement("div");
+        body.className = "safety-card-body";
+
+        const toolbar = document.createElement("div");
+        toolbar.className = "safety-toolbar safety-toolbar-dynamic";
+        toolbar.innerHTML = `
+          <button class="secondary" data-role="size" data-size="small" data-id="${card.id}">小</button>
+          <button class="secondary" data-role="size" data-size="medium" data-id="${card.id}">中</button>
+          <button class="secondary" data-role="size" data-size="large" data-id="${card.id}">大</button>
+          <button class="secondary" data-role="bold" data-id="${card.id}">太字</button>
+          <button class="secondary" data-role="save" data-id="${card.id}">保存</button>
+          <button class="secondary danger" data-role="delete" data-id="${card.id}">削除</button>
+        `;
+
+        const content = document.createElement("div");
+        content.className = "safety-editable";
+        content.contentEditable = "true";
+        content.innerHTML = card.html || "ここに内容を入力してください。";
+
+        content.classList.add(
+          card.sizeClass === "safety-large"
+            ? "safety-large"
+            : card.sizeClass === "safety-small"
+            ? "safety-small"
+            : "safety-medium"
+        );
+        if (card.bold) {
+          content.style.fontWeight = "bold";
+        }
+
+        body.appendChild(toolbar);
+        body.appendChild(content);
+
+        wrapper.appendChild(header);
+        wrapper.appendChild(body);
+
+        dynamicSafetyCardsContainer.appendChild(wrapper);
+      });
+    }
+
+    // 固定2枚のツールバー
+    document
+      .querySelectorAll(".safety-toolbar-fixed")
+      .forEach((toolbar) => {
+        toolbar.addEventListener("click", (e) => {
+          const btn = e.target.closest("button");
+          if (!btn) return;
+          const targetId = btn.dataset.target;
+          const size = btn.dataset.size;
+          const style = btn.dataset.style;
+          const action = btn.dataset.action;
+          const el =
+            targetId === "safety1" ? safety1Content : safety2Content;
+
+          if (!el) return;
+
+          if (size) {
+            el.classList.remove("safety-small","safety-medium","safety-large");
+            if (size === "small") el.classList.add("safety-small");
+            if (size === "medium") el.classList.add("safety-medium");
+            if (size === "large") el.classList.add("safety-large");
+          }
+          if (style === "bold") {
+            el.style.fontWeight = el.style.fontWeight === "bold" ? "normal" : "bold";
+          }
+          if (action === "save") {
+            saveSafetyCards();
+          }
+        });
+      });
+
+    // 動的カード用ツールバー（イベント委譲）
+    dynamicSafetyCardsContainer.addEventListener("click", (e) => {
       const btn = e.target.closest("button");
       if (!btn) return;
-      const targetId = btn.dataset.target;
-      const size = btn.dataset.size;
-      const style = btn.dataset.style;
-      const action = btn.dataset.action;
-      const el =
-        targetId === "safety1" ? safety1Content : safety2Content;
+      const role = btn.dataset.role;
+      const id = btn.dataset.id;
+      if (!role || !id) return;
 
-      if (!el) return;
+      const cardWrapper = dynamicSafetyCardsContainer.querySelector(
+        `.safety-card[data-id="${id}"]`
+      );
+      if (!cardWrapper) return;
 
-      if (size) {
-        el.classList.remove("safety-small","safety-medium","safety-large");
-        if (size === "small") el.classList.add("safety-small");
-        if (size === "medium") el.classList.add("safety-medium");
-        if (size === "large") el.classList.add("safety-large");
-      }
-      if (style === "bold") {
-        el.style.fontWeight = el.style.fontWeight === "bold" ? "normal" : "bold";
-      }
-      if (action === "save") {
+      const titleInputEl = cardWrapper.querySelector(".safety-title-input");
+      const contentEl = cardWrapper.querySelector(".safety-editable");
+
+      if (role === "size") {
+        const size = btn.dataset.size;
+        contentEl.classList.remove("safety-small","safety-medium","safety-large");
+        if (size === "small") contentEl.classList.add("safety-small");
+        if (size === "medium") contentEl.classList.add("safety-medium");
+        if (size === "large") contentEl.classList.add("safety-large");
+      } else if (role === "bold") {
+        contentEl.style.fontWeight =
+          contentEl.style.fontWeight === "bold" ? "normal" : "bold";
+      } else if (role === "delete") {
+        if (!confirm("この安全ボックスを削除しますか？")) return;
+        dynamicSafetyCards = dynamicSafetyCards.filter((c) => c.id !== id);
+        renderDynamicSafetyCards();
         saveSafetyCards();
+        return;
+      } else if (role === "save") {
+        // fall through to saveSafetyCards() でまとめて保存
       }
-    }
+
+      // ボタン操作後、即保存
+      saveSafetyCards();
+    });
+
+    // ボックス追加
+    addSafetyCardBtn.addEventListener("click", () => {
+      if (dynamicSafetyCards.length >= 8) {
+        alert("安全ボックスは最大8件までに制限しています。");
+        return;
+      }
+      const newId = "c" + Date.now();
+      dynamicSafetyCards.push({
+        id: newId,
+        title: "新しい安全メッセージ",
+        html: "ここに内容を入力してください。",
+        sizeClass: "safety-medium",
+        bold: false
+      });
+      renderDynamicSafetyCards();
+      saveSafetyCards();
+    });
 
     async function saveSafetyCards() {
       try {
+        // DOM から dynamicSafetyCards を取り直す
+        dynamicSafetyCards = Array.from(
+          dynamicSafetyCardsContainer.querySelectorAll(".safety-card")
+        ).map((wrapper) => {
+          const id = wrapper.dataset.id;
+          const titleInputEl = wrapper.querySelector(".safety-title-input");
+          const contentEl = wrapper.querySelector(".safety-editable");
+          const title = titleInputEl.value.trim() || "安全メッセージ";
+
+          let sizeClass = "safety-medium";
+          if (contentEl.classList.contains("safety-large")) {
+            sizeClass = "safety-large";
+          } else if (contentEl.classList.contains("safety-small")) {
+            sizeClass = "safety-small";
+          }
+
+          const bold = contentEl.style.fontWeight === "bold";
+
+          return {
+            id,
+            title,
+            html: contentEl.innerHTML,
+            sizeClass,
+            bold
+          };
+        });
+
         const data = {
           safety1Html: safety1Content.innerHTML,
           safety2Html: safety2Content.innerHTML,
@@ -1195,21 +1388,16 @@
               ? "safety-small"
               : "safety-medium",
           safety1Bold: safety1Content.style.fontWeight === "bold",
-          safety2Bold: safety2Content.style.fontWeight === "bold"
+          safety2Bold: safety2Content.style.fontWeight === "bold",
+          dynamicCards: dynamicSafetyCards
         };
+
         await setDoc(safetyDocRef, data, { merge: true });
-        alert("安全掲示板カードを保存しました。");
       } catch (e) {
         console.error(e);
         alert("安全掲示板カード保存中にエラーが発生しました。");
       }
     }
-
-    document
-      .querySelectorAll(".safety-toolbar")
-      .forEach((toolbar) => {
-        toolbar.addEventListener("click", handleSafetyToolbarClick);
-      });
 
     // ===== 初期ロード =====
     (async () => {
