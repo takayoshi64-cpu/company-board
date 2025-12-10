@@ -686,15 +686,16 @@
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAtY0kWxalO0B88AwpQU6bF8B4xxeFh5qc",
-      authDomain: "company-board-e9c21.firebaseapp.com",
-      projectId: "company-board-e9c21",
-      storageBucket: "company-board-e9c21.appspot.com",
-      messagingSenderId: "87763888182",
-      appId: "1:87763888182:web:9238e51b45c7b94b6e5097",
-      measurementId: "G-NTRC5HCN0H"
-    };
+  const firebaseConfig = {
+  apiKey: "AIzaSyAtY0kWxalO0B88AwpQU6bF8B4xxeFh5qc",
+  authDomain: "company-board-e9c21.firebaseapp.com",
+  projectId: "company-board-e9c21",
+  storageBucket: "company-board-e9c21.appspot.com",  // ← ここが超重要！
+  messagingSenderId: "87763888182",
+  appId: "1:87763888182:web:9238e51b45c7b94b6e5097",
+  measurementId: "G-NTRC5HCN0H"
+};
+
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
