@@ -164,8 +164,6 @@
       max-width: 100%;
       border-radius: 6px;
       border: 1px solid #e5e7eb;
-      display: block;
-      margin-bottom: 4px;
     }
     .badge {
       display: inline-block;
@@ -507,7 +505,7 @@
 
           <div id="listContainer" class="list-container"></div>
 
-          <!-- 安全掲示板専用カード（固定2つ） -->
+          <!-- 安全掲示板専用カード（固定2つ＋追加ボックス） -->
           <div id="safetyExtraWrapper" class="safety-extra-wrapper" style="display:none;">
             <div class="safety-extra-grid">
               <!-- 長時間労働と健康障害防止 -->
@@ -620,8 +618,8 @@
         <input id="authorInput" type="text" placeholder="例：管理部 寺田" />
       </div>
       <div class="form-row">
-        <label for="imageInput">画像（任意・最大2枚）</label>
-        <input id="imageInput" type="file" accept="image/*" multiple />
+        <label for="imageInput">画像（任意・1枚まで）</label>
+        <input id="imageInput" type="file" accept="image/*" />
         <div id="imagePreview" class="image-preview"></div>
       </div>
       <div class="button-row">
@@ -684,7 +682,7 @@
     import {
       getStorage,
       ref,
-      uploadBytesResumable,
+      uploadBytes,
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -734,7 +732,6 @@
     const safety2Content = document.getElementById("safety2Content");
     const addSafetyCardBtn = document.getElementById("addSafetyCardBtn");
     const dynamicSafetyCardsContainer = document.getElementById("dynamicSafetyCards");
-
     const saveSettingsBtn = document.getElementById("saveSettings");
 
     // ===== 状態 =====
@@ -811,31 +808,36 @@
       });
     });
 
-    // ===== 画像プレビュー（最大2枚） =====
+    // ===== 画像プレビュー =====
     imageInput.addEventListener("change", () => {
       imagePreview.innerHTML = "";
-      const files = Array.from(imageInput.files || []);
+      const file = imageInput.files[0];
+      if (!file) return;
+      const p = document.createElement("div");
+      p.textContent = `選択されたファイル：${file.name}`;
+      imagePreview.appendChild(p);
 
-      if (files.length > 2) {
-        alert("画像は最大2枚までにしてください。");
-        imageInput.value = "";
-        return;
-      }
-
-      if (!files.length) return;
-
-      files.forEach((file, index) => {
-        const info = document.createElement("div");
-        info.textContent = `画像${index + 1}：${file.name}`;
-        imagePreview.appendChild(info);
-
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(file);
-        imagePreview.appendChild(img);
-      });
+      const img = document.createElement("img");
+      img.src = URL.createObjectURL(file);
+      imagePreview.appendChild(img);
     });
 
-    // ===== 投稿処理（画像2枚＋進捗表示） =====
+    // ===== 画像アップロード（失敗したら本文だけ投稿） =====
+    async function uploadImageIfAny(file) {
+      if (!file) return "";
+      try {
+        const path = `postImages/${Date.now()}_${file.name}`;
+        const storageRef = ref(storage, path);
+        const snapshot = await uploadBytes(storageRef, file);
+        return await getDownloadURL(snapshot.ref);
+      } catch (e) {
+        console.error("画像アップロード失敗", e);
+        alert("画像のアップロードに失敗しました（本文だけ投稿します）。\n管理者は Firebase Storage のルール設定を確認してください。");
+        return "";
+      }
+    }
+
+    // ===== 投稿処理 =====
     submitPostBtn.addEventListener("click", async () => {
       const title = titleInput.value.trim() || "（無題）";
       const body = bodyInput.value.trim();
@@ -848,55 +850,12 @@
         return;
       }
 
-      const files = Array.from(imageInput.files || []);
-
-      if (files.length > 2) {
-        alert("画像は最大2枚までにしてください。");
-        return;
-      }
-
-      // サイズ制限（例：5MB）
-      for (const f of files) {
-        if (f.size > 5 * 1024 * 1024) {
-          alert(`画像「${f.name}」が大きすぎます。（5MBまで）`);
-          return;
-        }
-      }
-
       submitPostBtn.disabled = true;
-      submitPostBtn.textContent = "投稿準備中…";
+      submitPostBtn.textContent = "投稿中…";
 
       try {
-        const imageUrls = [];
-
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const path = `postImages/${Date.now()}_${i}_${file.name}`;
-          const storageRef = ref(storage, path);
-
-          submitPostBtn.textContent = `画像${i + 1} アップロード中…0%`;
-
-          const uploadTask = uploadBytesResumable(storageRef, file);
-
-          await new Promise((resolve, reject) => {
-            uploadTask.on(
-              "state_changed",
-              (snapshot) => {
-                const progress = Math.round(
-                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-                );
-                submitPostBtn.textContent = `画像${i + 1} アップロード中…${progress}%`;
-              },
-              (error) => reject(error),
-              () => resolve()
-            );
-          });
-
-          const url = await getDownloadURL(uploadTask.snapshot.ref);
-          imageUrls.push(url);
-        }
-
-        submitPostBtn.textContent = "投稿を保存中…";
+        const file = imageInput.files[0];
+        const imageUrl = await uploadImageIfAny(file);
 
         await addDoc(collection(db, "posts"), {
           title,
@@ -904,25 +863,20 @@
           dept,
           important,
           author,
-          imageUrls,
+          imageUrl,
           createdAt: serverTimestamp()
         });
 
-        // 入力リセット
         titleInput.value = "";
         bodyInput.value = "";
         authorInput.value = "";
         importantInput.value = "normal";
         imageInput.value = "";
         imagePreview.innerHTML = "";
-
         closeModal("newPost");
       } catch (e) {
         console.error(e);
-        alert(
-          "投稿中にエラーが発生しました。\n\n" +
-          (e.code || "") + " " + (e.message || "")
-        );
+        alert("投稿中にエラーが発生しました。");
       } finally {
         submitPostBtn.disabled = false;
         submitPostBtn.textContent = "投稿する";
@@ -949,7 +903,7 @@
       const filtered = posts.filter((p) => {
         if (p.deleted) return false;
         if (currentTab === "all") {
-          // 全体には職場マナーを出さない
+          // 全体には「職場マナー」を出さない
           return p.dept !== "manner";
         }
         return p.dept === currentTab;
@@ -1020,23 +974,13 @@
         item.appendChild(header);
         item.appendChild(bodyDiv);
 
-        // 画像（配列対応＋旧imageUrl対応）
-        const images = [];
-        if (Array.isArray(p.imageUrls)) {
-          images.push(...p.imageUrls);
-        } else if (p.imageUrl) {
-          images.push(p.imageUrl);
-        }
-
-        if (images.length) {
+        if (p.imageUrl) {
           const imgWrap = document.createElement("div");
           imgWrap.className = "item-image";
-          images.forEach((url) => {
-            const img = document.createElement("img");
-            img.src = url;
-            img.alt = "添付画像";
-            imgWrap.appendChild(img);
-          });
+          const img = document.createElement("img");
+          img.src = p.imageUrl;
+          img.alt = "添付画像";
+          imgWrap.appendChild(img);
           item.appendChild(imgWrap);
         }
 
@@ -1103,7 +1047,7 @@
       if (!str) return "";
       return String(str)
         .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;/")
+        .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;");
@@ -1384,9 +1328,10 @@
         saveSafetyCards();
         return;
       } else if (role === "save") {
-        // fall through → saveSafetyCards() でまとめて保存
+        // 何もしない（下でまとめて保存）
       }
 
+      // ボタン操作後、即保存
       saveSafetyCards();
     });
 
@@ -1417,9 +1362,7 @@
           const id = wrapper.dataset.id;
           const titleInputEl = wrapper.querySelector(".safety-title-input");
           const contentEl = wrapper.querySelector(".safety-editable");
-          const title = titleInputEl
-            ? titleInputEl.value.trim() || "安全メッセージ"
-            : "安全メッセージ";
+          const title = titleInputEl.value.trim() || "安全メッセージ";
 
           let sizeClass = "safety-medium";
           if (contentEl.classList.contains("safety-large")) {
